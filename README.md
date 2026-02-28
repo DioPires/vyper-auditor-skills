@@ -39,6 +39,23 @@ Optional parameters:
 /vyper-full-audit contracts_dir=contracts/ specs_dir=specs/
 ```
 
+### Excluding Directories
+
+Use `exclude` to skip directories from audit scope (e.g., out-of-scope contracts):
+```
+/vyper-full-audit exclude=contracts/p2p
+/vyper-full-audit exclude=contracts/p2p,contracts/v1/auxiliary
+```
+
+Excluded files are still inventoried (for completeness) but marked `EXCLUDED` and skipped in all scan, compliance, and analysis phases. Comma-separate multiple directories.
+
+Works with all skills:
+```
+/vyper-vuln-scan exclude=contracts/p2p
+/vyper-spec-compliance exclude=contracts/p2p
+/vyper-audit-context exclude=contracts/p2p
+```
+
 ### Standalone Skills
 
 Each skill works independently:
