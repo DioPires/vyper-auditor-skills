@@ -32,6 +32,12 @@ report synthesis) depend on.
 
 ## Phase 1: Contract Inventory
 
+### Parse Arguments
+
+Accept optional arguments:
+- `contracts_dir=<path>` — explicit contracts directory
+- `exclude=<dir1,dir2>` — comma-separated directories to exclude from context scope
+
 ### Locate Contracts
 
 If `contracts_dir` not provided:
@@ -43,6 +49,8 @@ If `contracts_dir` not provided:
 ### Enumerate Files
 
 For each `.vy` file:
+- If file path starts with any `exclude` directory: classify as `EXCLUDED`, include
+  in inventory table but skip in all analysis phases (trust boundary, call graph, etc.)
 - Record absolute path
 - Get line count via Bash: `wc -l <path>`
 - Extract `#pragma version` via Grep for `#pragma version` or `# @version`

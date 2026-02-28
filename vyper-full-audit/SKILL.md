@@ -37,8 +37,12 @@ their SKILL.md instructions and spawn Explore subagents for parallel work.
 Accept optional arguments:
 - `contracts_dir=<path>` — explicit contracts directory
 - `specs_dir=<path>` — explicit specs directory
+- `exclude=<dir1,dir2>` — comma-separated directories to exclude from audit scope
+  (e.g., `exclude=contracts/p2p,contracts/v1/auxiliary`)
 
-If no arguments provided, auto-detect both.
+If no arguments provided, auto-detect both. Excluded directories are filtered out
+after discovery — their `.vy` files are inventoried but marked `EXCLUDED` and
+skipped in all scan/compliance phases.
 
 ### Auto-Detect Contracts Directory
 

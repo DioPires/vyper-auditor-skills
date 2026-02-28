@@ -73,6 +73,12 @@ or prior context-building run):
 
 If not available: proceed without context. Log warning.
 
+### Parse Arguments
+
+Accept optional arguments:
+- `contracts_dir=<path>` — explicit contracts directory
+- `exclude=<dir1,dir2>` — comma-separated directories to exclude from scan scope
+
 ### Auto-Detect Contracts Directory
 
 If `contracts_dir` not provided as argument:
@@ -87,6 +93,7 @@ If `contracts_dir` not provided as argument:
 For each `.vy` file discovered:
 - Record: path, filename
 - Classify: `Mock*.vy` = mock, `auxiliary/` non-Mock = bridge, else = production
+- If file path starts with any `exclude` directory: mark as `EXCLUDED`, skip in all phases
 - Extract `#pragma version` via grep for `#pragma version` or `# @version`
 - Store inventory for scan targeting
 

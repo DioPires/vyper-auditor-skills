@@ -32,6 +32,15 @@ requirements, map them to source code, and verify each one with evidence.
 
 ## Phase 1: Spec Extraction
 
+### Parse Arguments
+
+Accept optional arguments:
+- `specs_dir=<path>` — explicit specs directory
+- `contracts_dir=<path>` — explicit contracts directory
+- `exclude=<dir1,dir2>` — comma-separated directories to exclude (contracts in
+  these dirs are skipped during verification, requirements mapping still includes them
+  but marks as `EXCLUDED`)
+
 ### Locate Specs
 
 If `specs_dir` not provided:
