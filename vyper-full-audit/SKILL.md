@@ -1,319 +1,294 @@
 ---
 name: vyper-full-audit
 description: >-
-  Runs autonomous end-to-end security audit of Vyper 0.4.x smart contracts.
-  Executes context building, vulnerability scanning, spec compliance,
-  and report synthesis with parallel subagent spawning.
-  Triggers: audit Vyper contracts, full audit, security review,
-  comprehensive smart contract analysis, run audit.
+  Runs mandatory production-gated security audit for Vyper >=0.4.0 projects.
+  Generates canonical JSON artifacts plus Markdown render artifacts. Enforces
+  strict input validation, assurance checks, and deterministic PASS/FAIL/BLOCKED
+  release gating.
+  Triggers: full audit, production audit gate, release security gate,
+  comprehensive Vyper audit.
 ---
 
-# Vyper Full Audit — Orchestrator
+# Vyper Full Audit v2 - Generic, Prod-Gate Mandatory
 
-You are a senior smart contract security auditor running a full autonomous audit
-pipeline for Vyper >= 0.4.0 contracts. You coordinate 4 specialist skills via
-their SKILL.md instructions and spawn Explore subagents for parallel work.
+You are a senior smart contract security auditor executing a full release gate
+for Vyper codebases.
 
-**Target**: Vyper >= 0.4.0 only. Reject Solidity or pre-0.4.0 Vyper.
+**Scope**: Vyper `>=0.4.0` only.
+**Default mode**: `mode=prod-gate`.
+**Default strictness**: `strict=true`.
 
-## Key Rules
+## Core Principles
 
-- Read before write. Read every reference and sibling SKILL.md before executing.
-- Subagents are spawned via Task tool with `subagent_type: "Explore"`. Role is
-  embedded in the Task prompt, NOT as a custom subagent_type value.
-- Subagents return findings as Task response text. This main execution writes ALL
-  output files.
-- Mock contracts use `Mock*` prefix. Non-Mock files in `auxiliary/` are production
-  bridges. Never skip bridges.
-- Read `references/rationalizations-to-reject.md` — apply it to every finding.
-- No partial runs. If a phase fails, log the failure and continue to next phase.
-
----
-
-## Phase 1: Setup + Path Discovery
-
-### Parse Arguments
-
-Accept optional arguments:
-- `contracts_dir=<path>` — explicit contracts directory
-- `specs_dir=<path>` — explicit specs directory
-- `exclude=<dir1,dir2>` — comma-separated directories to exclude from audit scope
-  (e.g., `exclude=contracts/p2p,contracts/v1/auxiliary`)
-
-If no arguments provided, auto-detect both. Excluded directories are filtered out
-after discovery — their `.vy` files are inventoried but marked `EXCLUDED` and
-skipped in all scan/compliance phases.
-
-### Auto-Detect Contracts Directory
-
-If `contracts_dir` not explicitly provided:
-
-1. Glob for `contracts/` or `src/` in project root.
-2. Exclude: `.venv/`, `node_modules/`, `.git/`, `build/`, `dist/`.
-3. Glob `*.vy` within candidate dirs.
-4. Fallback: glob `**/*.vy` across entire project, select directory containing
-   the most `.vy` files.
-5. If explicit arg provided, use it without detection.
-
-### Auto-Detect Specs Directory
-
-Glob for `**/specs/**/*.md` or `**/SPEC*.md`. Use the parent directory of the
-first match as specs_dir.
-
-### Auto-Detect Prior Audits
-
-Glob `**/AUDIT_REPORT*.md`. If found, store paths for Phase 2. If none found,
-set `KNOWN_FINDINGS = []`.
-
-### Create Output Directory
-
-```
-output_dir = .claude/audit-sessions/{YYYYMMDD-HHMMSS}/
-```
-
-Create via Bash: `mkdir -p {output_dir}`
-
-### Abort Conditions
-
-Abort with clear error message if ANY of:
-- No `.vy` files found anywhere in project
-- All discovered `.vy` files are `Mock*` prefixed (nothing to audit)
-- Any of the 4 sibling SKILL.md files are missing (see below)
-
-### Verify Sibling Skills Exist
-
-Read each of these files. If ANY is missing, abort with message:
-"Missing required skill files. Run install.sh first."
-
-```
-~/.claude/skills/vyper-audit-context/SKILL.md
-~/.claude/skills/vyper-vuln-scan/SKILL.md
-~/.claude/skills/vyper-spec-compliance/SKILL.md
-~/.claude/skills/vyper-audit-report/SKILL.md
-```
-
-### Phase 1 Output
-
-Log to console:
-- Contracts dir, file count, specs dir, output dir
-- List of .vy files discovered (path + classification preview)
+- Fail closed for release safety.
+- Unknown or duplicate arguments are hard errors.
+- No partial production audits.
+- Critical/High findings must be independently validated.
+- Canonical artifacts are JSON; Markdown is render-only.
 
 ---
 
-## Phase 2: Context Building
+## Argument Grammar
 
-### Load Instructions
+Input must be `key=value` tokens separated by spaces.
 
-Read `~/.claude/skills/vyper-audit-context/SKILL.md` for detailed phase
-instructions. Follow them exactly.
+Allowed keys:
+- `contracts_dir=<csv_paths>`
+- `specs_dir=<csv_paths>`
+- `exclude=<csv_paths>`
+- `profile=<generic|defi-lending|erc4626|p2p>`
+- `strict=<true|false>`
+- `mode=<prod-gate>`
+- `output_dir=<path>`
 
-### Execute Context Building
+Rules:
+- List-capable values are comma-separated (`a,b,c`).
+- Unknown key => abort.
+- Duplicate key => abort.
+- Missing required value => abort.
 
-Perform all work described in the context skill:
-1. **Contract Inventory** — enumerate all .vy files with path, LOC, pragma
-   version, classification.
-2. **Trust Boundary Map** — identify owner, curator, guardian, external protocol,
-   and user trust domains per contract. Map cross-contract trust relationships.
-3. **External Call Graph** — grep for `extcall`, `staticcall`, `raw_call`,
-   `send(`. Classify internal vs external. Flag calls to user-supplied addresses
-   and unchecked return values.
-4. **State Mutation Map** — for each production contract, list state variables,
-   readers, writers. Flag state modified after external calls (CEI violations).
-
-### Classification Rules
-
-- `Mock*.vy` files → classification: `mock`
-- Non-Mock files in `auxiliary/` → classification: `bridge`
-- Everything else → classification: `production`
-
-### Prior Findings
-
-Load prior audit findings from detected AUDIT_REPORT*.md files. Parse findings
-tables. If no prior audits: `KNOWN_FINDINGS = []`, log warning.
-
-### Write Output
-
-Write `{output_dir}/audit-context.md` containing all 4 maps + prior findings.
+Defaults:
+- `profile=generic`
+- `strict=true`
+- `mode=prod-gate`
+- `output_dir=.claude/audit-sessions/{YYYYMMDD-HHMMSS}`
 
 ---
 
-## Phase 3: Vulnerability Scanning (Parallelized)
+## Required Inputs (Prod-Gate)
 
-### Load Instructions
+Hard-required:
+- Valid contracts discovery with at least one non-mock `.vy` file.
+- Vyper version policy satisfied (`>=0.4.0`).
+- `references/vuln-rule-registry.json`
+- `references/vyper-advisory-catalog.json`
+- `references/vyper-language-edges.md`
+- `references/suppression-matrix.md`
+- `references/schemas/audit-context.schema.json`
+- `references/schemas/findings-artifact.schema.json`
+- `references/schemas/compliance.schema.json`
+- `references/schemas/audit-report.schema.json`
+- `references/schemas/assurance-checks.schema.json`
+- `references/schemas/gate-status.schema.json`
+- `references/schemas/vyper-advisory-catalog.schema.json`
+- `references/assurance-rubric.md`
+- Vulnerability scan phase complete.
+- Spec compliance phase complete.
+- Assurance checks phase result `PASS`.
+- Critical/High validation complete.
 
-Read `~/.claude/skills/vyper-vuln-scan/SKILL.md` for detailed phase instructions.
+Optional:
+- Prior audits (`AUDIT_REPORT*.md`).
+- Non-selected profile packs.
 
-### Load Context
-
-Read `{output_dir}/audit-context.md` for trust boundaries + known findings.
-
-### Load All Reference Files
-
-Read every file in `references/`:
-- `references/vyper-vulnerability-patterns.md` (37 VYP patterns)
-- `references/defi-lending-checklist.md` (63 checks)
-- `references/p2p-lending-checklist.md` (15 checks)
-- `references/erc4626-vault-checklist.md` (35 checks)
-- `references/vyper-language-edges.md` (15 Vyper 0.4.x gotchas)
-- `references/rationalizations-to-reject.md` (10 anti-shortcuts)
-
-### Compiler CVE Check
-
-Extract `#pragma version` from each contract. Flag applicable compiler CVEs
-from the vulnerability patterns reference.
-
-### Grep-First Pattern Scan
-
-For each VYP-* pattern marked as `grep_scannable`:
-- Run Grep tool with the pattern's trigger regex on production contracts only
-- Skip `Mock*` files
-- Record: file, line number, matched text, VYP-ID
-
-### Semantic Validation via Subagents
-
-Spawn up to 3 Explore subagents via Task tool for semantic validation.
-Each subagent prompt must include:
-- Role: "Vyper security analyst validating vulnerability candidates"
-- Assigned contract file paths
-- Candidate findings to validate
-- Vyper language edges (key points from reference)
-- Rationalizations to reject (key points from reference)
-- Expected return format: structured findings table
-
-### Checklist Deep Scan
-
-Walk each production contract through applicable checklists:
-- All contracts: `defi-lending-checklist.md`
-- P2P contracts (in `p2p/` dir or with `P2P` in name): `p2p-lending-checklist.md`
-- Vault/ERC4626 contracts: `erc4626-vault-checklist.md`
-
-### Dedup Against Known Findings
-
-Cross-reference all findings against KNOWN_FINDINGS from audit-context.md.
-Same file + similar description = RECURRING. New = NEW.
-
-### Write Output
-
-Write `{output_dir}/vuln-scan-findings.md`.
+If any hard-required item is missing or invalid: `PROD_GATE=BLOCKED`.
 
 ---
 
-## Phase 4: Spec Compliance (Parallelized)
+## Phase 1: Setup + Discovery
 
-### Load Instructions
+1. Parse arguments using grammar above.
+2. Discover contract roots:
+- Use provided `contracts_dir` list if present.
+- Else scan `contracts/` and `src/`, fallback to directories containing most `.vy` files.
+3. Discover specs roots:
+- Use provided `specs_dir` list if present.
+- Else collect all matches for `**/specs/**/*.md` and `**/SPEC*.md`.
+- Do not use "first match only".
+4. Build inventory and classify:
+- `Mock*.vy` => `mock`
+- `auxiliary/` non-mock => `bridge`
+- otherwise => `production`
+- `exclude` paths => `excluded`
+5. Parse pragma versions per file (`#pragma version` or `# @version`).
 
-Read `~/.claude/skills/vyper-spec-compliance/SKILL.md` for detailed instructions.
-
-### Load Context
-
-Read `{output_dir}/audit-context.md` for contract classification + trust
-boundaries.
-
-### Extract Requirements
-
-Read all spec files from specs_dir. Extract MUST/SHALL/SHOULD requirements
-using the extraction rules defined in the spec compliance skill.
-
-### Spawn Verification Subagents
-
-Spawn up to 4 Explore subagents via Task tool, one per contract group:
-
-**Subagent 1: LendingVault.vy**
-- Read full vault contract
-- Verify against vault specs (01-vault-contract, 05-fee-structure, 06-withdrawal-queue)
-
-**Subagent 2: Adapters**
-- P2PLendingAdapter.vy + MorphoLendingAdapter.vy
-- Verify against adapter/market integration specs
-
-**Subagent 3: Strategies + Bridges**
-- AaveYieldStrategy, MorphoYieldStrategy, bridge contracts
-- Verify against yield strategy and bridge specs
-
-**Subagent 4: Factory**
-- LendingVaultFactory.vy
-- Verify against factory spec (07-factory)
-
-### P2P Core Scope
-
-Contracts in `contracts/p2p/`: flag as `UNVERIFIED_SCOPE`. Only the adapter
-spec covers the P2P-to-vault boundary, not P2P internals.
-
-### Write Output
-
-Write `{output_dir}/spec-compliance.md`.
+Version policy:
+- Any non-Vyper source in target scope => abort.
+- Any Vyper version `<0.4.0` => abort.
+- Unknown or unparsable pragma in production/bridge contracts => `BLOCKED`.
 
 ---
 
-## Phase 5: Report Synthesis
+## Phase 2: Load Rules + Schemas
 
-### Load Instructions
+Load and validate required references:
+- `references/vuln-rule-registry.json`
+- `references/vyper-advisory-catalog.json`
+- `references/suppression-matrix.md`
+- `references/vyper-language-edges.md`
+- `references/rationalizations-to-reject.md`
+- `references/schemas/*.schema.json` required by this run
 
-Read `~/.claude/skills/vyper-audit-report/SKILL.md` for detailed instructions.
+Advisory freshness behavior:
+- Missing/invalid advisory catalog under `strict=true` => `BLOCKED`.
+- Stale advisory catalog => warning in canonical artifacts, not standalone `BLOCKED`.
 
-### Merge Findings
+Profile packs:
+- `generic`: no domain checklist required.
+- `defi-lending`: requires `defi-lending-checklist.md`.
+- `erc4626`: requires `erc4626-vault-checklist.md`.
+- `p2p`: requires `p2p-lending-checklist.md`.
 
-Read `{output_dir}/vuln-scan-findings.md` + `{output_dir}/spec-compliance.md`.
-
-### Delta Analysis
-
-Compare against prior findings from audit-context.md:
-- NEW / RECURRING / REGRESSION / RESOLVED classification
-- REGRESSION: previously "fixed" finding reappeared — escalate severity
-
-### Severity Calibration
-
-Apply calibration rules from the report skill:
-- Cross-cutting (2+ contracts) → bump one level (max Critical)
-- Hot path (deposit, withdraw, liquidate) → bump Low to Medium
-- Edge-case only → cap at Medium
-- Mock contracts → cap at Informational
-
-### Finding Validation
-
-Spawn Explore subagents via Task tool for each CRITICAL and HIGH finding.
-Each validates: code matches claim, rationalizations-to-reject applied,
-independent assessment (CONFIRMED / REJECTED / UNVERIFIED).
-
-### Write Outputs
-
-- `{output_dir}/audit-report.md` — full report per template
-- `{output_dir}/action-items.md` — prioritized remediation list
+In `strict=true`, missing selected profile pack => `BLOCKED`.
 
 ---
 
-## Phase 6: Summary
+## Phase 3: Context Build
 
-### Print to User
+Execute `vyper-audit-context` behavior and produce:
+- `{output_dir}/audit-context.json` (canonical)
+- `{output_dir}/audit-context.md` (render)
 
-1. **Executive Summary** — total findings by severity, scope coverage
-2. **Critical/High Findings** — one-line summary of each
-3. **Artifact Paths** — full paths to all generated files:
-   - `{output_dir}/audit-context.md`
-   - `{output_dir}/vuln-scan-findings.md`
-   - `{output_dir}/spec-compliance.md`
-   - `{output_dir}/audit-report.md`
-   - `{output_dir}/action-items.md`
+Validate JSON against `audit-context.schema.json`.
+Schema failure => `BLOCKED`.
 
-### Completion Signal
+---
 
-Print the artifact paths and summary. The audit is complete.
+## Phase 4: Vulnerability Scan
+
+Execute `vyper-vuln-scan` behavior and produce:
+- `{output_dir}/findings.json` (canonical)
+- `{output_dir}/vuln-scan-findings.md` (render)
+
+Validate JSON against `findings-artifact.schema.json`.
+Schema failure => `BLOCKED`.
+
+---
+
+## Phase 5: Spec Compliance
+
+Execute `vyper-spec-compliance` behavior and produce:
+- `{output_dir}/compliance.json` (canonical)
+- `{output_dir}/spec-compliance.md` (render)
+
+Prod-gate rule:
+- Spec compliance is required.
+- If no specs can be discovered or verified => `BLOCKED`.
+
+Validate JSON against `compliance.schema.json`.
+Schema failure => `BLOCKED`.
+
+---
+
+## Phase 6: Assurance Checks (Hard Gate)
+
+Evaluate fuzzing/invariant/property assurance.
+
+Detect frameworks and artifacts (examples):
+- Foundry (`foundry.toml`, `test/`, `invariant` tests)
+- Echidna configs or harnesses
+- Halmos/SMT/property frameworks
+- Other framework equivalents present in repo
+
+Quality checks (all required for PASS):
+1. Presence:
+- At least one fuzz/property/invariant suite exists.
+2. Critical invariant coverage:
+- Accounting conservation.
+- Access control invariants.
+- External-call safety invariants.
+- Core lifecycle/state-machine invariants.
+3. Execution evidence:
+- Recent successful run artifacts or logs available in project context.
+- No unresolved failing seeds/counterexamples.
+4. Adequate depth:
+- Suite demonstrates meaningful scenario breadth (not trivial placeholder tests).
+5. Feature-conditional evidence:
+- Use `audit-context.json.language_feature_usage[]` as source of truth.
+- If risky features are present, targeted property/invariant evidence is required.
+- Missing targeted evidence => assurance result cannot be `PASS`.
+
+Output (validate with `assurance-checks.schema.json`):
+- `{output_dir}/assurance-checks.json`
+- Include `ASSURANCE_CHECKS: PASS|FAIL|BLOCKED` and rationale.
+
+Any result other than `PASS` => `PROD_GATE=BLOCKED`.
+
+---
+
+## Phase 7: Report Synthesis
+
+Execute `vyper-audit-report` behavior and produce:
+- `{output_dir}/audit-report.json` (canonical)
+- `{output_dir}/audit-report.md` (render)
+- `{output_dir}/action-items.md`
+
+Validate JSON against `audit-report.schema.json`.
+Schema failure => `BLOCKED`.
+
+---
+
+## Phase 8: Gate Evaluation
+
+Compute final status:
+
+`PROD_GATE=PASS` only if all are true:
+- Required references and schemas loaded.
+- `audit-context.json`, `findings.json`, `compliance.json`, `audit-report.json` all schema-valid.
+- Gate-facing artifacts include `warnings[]` with consistent propagation.
+- Spec compliance phase completed.
+- `ASSURANCE_CHECKS=PASS`.
+- No `INCOMPLETE` in Critical/High path.
+- Every Critical/High finding has independent validation result.
+
+Else:
+- `PROD_GATE=BLOCKED`.
+
+Write:
+- `{output_dir}/gate-status.json`
+- `{output_dir}/gate-summary.md`
+
+`gate-status.json` fields:
+- `prod_gate`
+- `assurance_checks`
+- `blocked_reasons[]`
+- `warnings[]`
+- `critical_high_validation_summary`
+- `artifact_paths`
+
+Validate `gate-status.json` against `gate-status.schema.json`.
+Schema failure => `BLOCKED`.
+
+---
+
+## Canonical Model Requirements
+
+Statuses:
+- `NEW|RECURRING|REGRESSION|ACKNOWLEDGED|RESOLVED|INCOMPLETE`
+
+Finding IDs:
+- `rule_id`: taxonomy identifier (`VYP-*`, `E46-*`, `SPEC-*`, etc.)
+- `finding_id`: deterministic instance ID (`FND-<hash>`)
+
+Required finding fields:
+- `finding_id`
+- `rule_id`
+- `severity`
+- `status`
+- `contract`
+- `function`
+- `span`
+- `confidence`
+- `evidence`
+- `recommendation`
+- `source`
 
 ---
 
 ## Error Handling
 
-- If a subagent fails or times out: log the failure, continue with available data.
-  Mark affected sections as INCOMPLETE in the report.
-- If a reference file is missing: warn and continue. Do not abort the full
-  pipeline for a missing reference.
-- If a phase produces no findings: that is a valid result. Do not fabricate
-  findings to fill space.
+- Unknown argument or duplicate argument => abort.
+- Missing required file/schema => `BLOCKED`.
+- Missing advisory catalog or advisory catalog schema in strict mode => `BLOCKED`.
+- Missing optional prior audit data => continue.
+- Subagent/tool failure in Critical/High path => `BLOCKED`.
+- No findings is valid; fabricated findings are forbidden.
 
-## Anti-Patterns to Avoid
+---
 
-Read `references/rationalizations-to-reject.md` before starting. Specifically:
-- Do not dismiss findings because "it's upgradeable" or "governance will fix it"
-- Do not skip mock analysis entirely — mock bugs can indicate spec misunderstanding
-- Do not conflate "no grep hit" with "no vulnerability" — semantic issues need reading
-- Do not downgrade severity because a finding is "unlikely" without quantitative argument
+## Anti-Patterns
+
+- Do not downgrade severity without explicit rationale + evidence.
+- Do not merge cross-contract findings into one instance.
+- Do not treat file existence as assurance sufficiency.
+- Do not claim exploit prevention proof from a PASS gate.

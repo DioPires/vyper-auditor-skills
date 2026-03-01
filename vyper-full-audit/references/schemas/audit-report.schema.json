@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyper-defi-audit/schemas/audit-report.schema.json",
+  "title": "AuditReportArtifact",
+  "type": "object",
+  "required": [
+    "meta",
+    "gate",
+    "warnings",
+    "summary",
+    "findings",
+    "systemic_patterns",
+    "feature_risk_summary",
+    "delta",
+    "spec_coverage",
+    "compiler_assessment",
+    "validation_summary",
+    "action_items"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["generated_at", "scope"],
+      "additionalProperties": false,
+      "properties": {
+        "generated_at": {"type": "string"},
+        "scope": {"type": "string"},
+        "versions": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "gate": {
+      "type": "object",
+      "required": ["prod_gate", "assurance_checks", "blocked_reasons"],
+      "additionalProperties": false,
+      "properties": {
+        "prod_gate": {"type": "string", "enum": ["PASS", "FAIL", "BLOCKED"]},
+        "assurance_checks": {"type": "string", "enum": ["PASS", "FAIL", "BLOCKED"]},
+        "blocked_reasons": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "level", "message"],
+        "additionalProperties": false,
+        "properties": {
+          "code": {"type": "string", "minLength": 1},
+          "level": {"type": "string", "enum": ["INFO", "WARN"]},
+          "message": {"type": "string", "minLength": 1},
+          "source": {"type": "string"},
+          "context": {
+            "type": "object",
+            "additionalProperties": {
+              "type": ["string", "number", "boolean", "null"]
+            }
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total", "critical", "high", "medium", "low", "informational"],
+      "additionalProperties": false,
+      "properties": {
+        "total": {"type": "integer", "minimum": 0},
+        "critical": {"type": "integer", "minimum": 0},
+        "high": {"type": "integer", "minimum": 0},
+        "medium": {"type": "integer", "minimum": 0},
+        "low": {"type": "integer", "minimum": 0},
+        "informational": {"type": "integer", "minimum": 0}
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {"$ref": "finding.schema.json"}
+    },
+    "systemic_patterns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["pattern", "contracts", "finding_ids", "max_severity"],
+        "additionalProperties": false,
+        "properties": {
+          "pattern": {"type": "string"},
+          "contracts": {"type": "array", "items": {"type": "string"}},
+          "finding_ids": {"type": "array", "items": {"type": "string"}},
+          "max_severity": {"type": "string", "enum": ["Critical", "High", "Medium", "Low", "Informational"]}
+        }
+      }
+    },
+    "feature_risk_summary": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["feature", "contracts", "related_rule_ids", "assurance_status"],
+        "additionalProperties": false,
+        "properties": {
+          "feature": {"type": "string"},
+          "contracts": {"type": "array", "items": {"type": "string"}},
+          "related_rule_ids": {"type": "array", "items": {"type": "string"}},
+          "assurance_status": {"type": "string", "enum": ["PASS", "FAIL", "BLOCKED", "N_A"]},
+          "notes": {"type": "string"}
+        }
+      }
+    },
+    "delta": {
+      "type": "array",
+      "items": {"$ref": "delta.schema.json"}
+    },
+    "spec_coverage": {
+      "type": "object",
+      "required": ["total_requirements", "pass", "fail", "partial", "unverified", "unmapped"],
+      "additionalProperties": false,
+      "properties": {
+        "total_requirements": {"type": "integer", "minimum": 0},
+        "pass": {"type": "integer", "minimum": 0},
+        "fail": {"type": "integer", "minimum": 0},
+        "partial": {"type": "integer", "minimum": 0},
+        "unverified": {"type": "integer", "minimum": 0},
+        "unmapped": {"type": "integer", "minimum": 0}
+      }
+    },
+    "compiler_assessment": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["version", "contracts", "risk"],
+        "additionalProperties": false,
+        "properties": {
+          "version": {"type": "string"},
+          "contracts": {"type": "integer", "minimum": 0},
+          "risk": {"type": "string", "enum": ["None", "Low", "Medium", "High", "Unknown"]},
+          "cves": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "validation_summary": {
+      "type": "object",
+      "required": ["critical_high_total", "confirmed", "rejected", "unverified"],
+      "additionalProperties": false,
+      "properties": {
+        "critical_high_total": {"type": "integer", "minimum": 0},
+        "confirmed": {"type": "integer", "minimum": 0},
+        "rejected": {"type": "integer", "minimum": 0},
+        "unverified": {"type": "integer", "minimum": 0}
+      }
+    },
+    "action_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["priority", "finding_id", "rule_id", "severity", "action", "effort"],
+        "additionalProperties": false,
+        "properties": {
+          "priority": {"type": "string", "enum": ["P1", "P2", "P3", "P4"]},
+          "finding_id": {"type": "string"},
+          "rule_id": {"type": "string"},
+          "severity": {"type": "string", "enum": ["Critical", "High", "Medium", "Low", "Informational"]},
+          "action": {"type": "string"},
+          "effort": {"type": "string", "enum": ["S", "M", "L"]}
+        }
+      }
+    }
+  }
+}

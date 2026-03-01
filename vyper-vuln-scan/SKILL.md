@@ -1,327 +1,227 @@
 ---
 name: vyper-vuln-scan
 description: >-
-  Scans Vyper 0.4.x smart contracts for 37 vulnerability patterns, 7 compiler
-  CVEs, 63 DeFi lending checks, 15 P2P lending checks, and 35 ERC4626 checks.
-  Grep-first pattern scan followed by semantic validation with parallel subagents.
-  Triggers: vuln scan, vulnerability scan, security scan, check for vulnerabilities,
-  security check, scan contracts.
+  Generic Vyper >=0.4.0 vulnerability scanner using a structured rule registry,
+  explicit suppression matrix, deterministic finding IDs, and JSON-first outputs.
+  Supports optional domain profiles while preserving generic default behavior.
+  Triggers: vuln scan, security scan, Vyper vulnerability review.
 ---
 
-# Vyper Vulnerability Scanner
+# Vyper Vulnerability Scanner v2
 
-You are a senior smart contract security analyst specializing in Vyper >= 0.4.0
-vulnerability detection. You combine automated grep-based pattern scanning with
-semantic code analysis to find real vulnerabilities while minimizing false positives.
+You are a senior smart contract security analyst. Scan Vyper contracts using
+structured rule metadata and deterministic outputs.
 
-**Target**: Vyper >= 0.4.0 only. Reject Solidity or pre-0.4.0 Vyper.
+**Scope**: Vyper `>=0.4.0` only.
 
-## Key Rules
+## Inputs
 
-- Grep first, read second. Pattern scan catches the easy wins fast.
-- Every grep hit is a CANDIDATE, not a finding. Semantic validation required.
-- Subagents spawned via Task tool with `subagent_type: "Explore"`. Role is
-  embedded in the Task prompt.
-- Mock contracts (`Mock*` prefix) are scanned but findings capped at Informational.
-- Non-Mock files in `auxiliary/` are production bridges — scan at full severity.
-- Read `references/rationalizations-to-reject.md` — apply to every finding.
-- No fabricated findings. "No vulnerabilities found" is a valid output.
+Accepted args (`key=value`):
+- `contracts_dir=<csv_paths>`
+- `exclude=<csv_paths>`
+- `profile=<generic|defi-lending|erc4626|p2p>`
+- `strict=<true|false>`
+- `output_dir=<path>`
 
----
+Rules:
+- Unknown key => abort.
+- Duplicate key => abort.
 
-## Phase 1: Load References + Context
+Defaults:
+- `profile=generic`
+- `strict=true`
 
-### Load All Reference Files
+## Required References
 
-Read each file in order. These are your scanning rulesets.
+Hard-required:
+- `references/vuln-rule-registry.json`
+- `references/vyper-advisory-catalog.json`
+- `references/vyper-language-edges.md`
+- `references/suppression-matrix.md`
+- `references/rationalizations-to-reject.md`
+- `references/schemas/finding.schema.json`
+- `references/schemas/findings-artifact.schema.json`
+- `references/schemas/vyper-advisory-catalog.schema.json`
 
-1. Read `references/vyper-vulnerability-patterns.md`
-   - 37 patterns (VYP-01 through VYP-37)
-   - Each pattern has: ID, name, severity, grep trigger (if scannable),
-     description, remediation
-   - Patterns are classified as `grep_scannable` or `semantic_only`
+Profile-required when selected:
+- `defi-lending`: `references/defi-lending-checklist.md`
+- `erc4626`: `references/erc4626-vault-checklist.md`
+- `p2p`: `references/p2p-lending-checklist.md`
 
-2. Read `references/defi-lending-checklist.md`
-   - 63 checks covering lending protocol security
-   - Applicable to ALL production contracts
-
-3. Read `references/p2p-lending-checklist.md`
-   - 15 checks specific to peer-to-peer lending
-   - Applicable ONLY to contracts in `p2p/` dir or with `P2P` in filename
-
-4. Read `references/erc4626-vault-checklist.md`
-   - 35 checks for ERC4626 vault compliance and security
-   - Applicable ONLY to vault contracts implementing ERC4626
-
-5. Read `references/vyper-language-edges.md`
-   - 15 Vyper 0.4.x language gotchas
-   - Apply during semantic validation — these are sources of subtle bugs
-
-6. Read `references/rationalizations-to-reject.md`
-   - 10 anti-shortcuts auditors commonly use to dismiss real findings
-   - Apply as counter-check: if you want to dismiss a finding, check if your
-     reasoning matches a rationalization pattern
-
-### Load Audit Context (If Available)
-
-If `audit-context.md` exists in the output directory (provided by orchestrator
-or prior context-building run):
-- Read it for trust boundaries, contract classifications, known findings
-- Use trust boundaries to calibrate severity (admin-only paths are lower risk
-  than permissionless paths)
-- Use known findings for dedup in Phase 5
-
-If not available: proceed without context. Log warning.
-
-### Parse Arguments
-
-Accept optional arguments:
-- `contracts_dir=<path>` — explicit contracts directory
-- `exclude=<dir1,dir2>` — comma-separated directories to exclude from scan scope
-
-### Auto-Detect Contracts Directory
-
-If `contracts_dir` not provided as argument:
-
-1. Glob for `contracts/` or `src/` in project root
-2. Exclude: `.venv/`, `node_modules/`, `.git/`, `build/`, `dist/`
-3. Glob `*.vy` within candidate dirs
-4. Fallback: glob `**/*.vy`, select directory with most `.vy` files
-
-### Build Contract Inventory
-
-For each `.vy` file discovered:
-- Record: path, filename
-- Classify: `Mock*.vy` = mock, `auxiliary/` non-Mock = bridge, else = production
-- If file path starts with any `exclude` directory: mark as `EXCLUDED`, skip in all phases
-- Extract `#pragma version` via grep for `#pragma version` or `# @version`
-- Store inventory for scan targeting
+If required inputs are missing and `strict=true` => abort.
 
 ---
 
-## Phase 2: Pattern Scan (Grep-First)
+## Phase 1: Discovery + Version Validation
 
-This phase uses the Grep tool for fast, broad pattern detection across all
-production contracts. Mock files are excluded from this phase.
-
-### Execution
-
-For each VYP-* pattern in `vyper-vulnerability-patterns.md` that is marked
-`grep_scannable`:
-
-1. Extract the grep trigger regex from the pattern definition
-2. Run Grep tool against the contracts directory, excluding `Mock*` files
-3. For each match, record:
-   - `vyp_id`: the VYP-XX identifier
-   - `file`: absolute path to the matched file
-   - `line`: line number of the match
-   - `matched_text`: the matched line content
-   - `severity`: from the pattern definition
-   - `status`: `CANDIDATE` (not yet validated)
-
-### Suppression Rules
-
-Apply these suppression rules to reduce false positives from overlapping patterns:
-
-- **VYP-03 suppresses VYP-13** at the same site: if VYP-03 (reentrancy) matches
-  at file:line, suppress any VYP-13 (state inconsistency) match within +/- 5
-  lines of the same file. VYP-03 is the root cause; VYP-13 is the symptom.
-
-- **VYP-01 suppresses VYP-21** in the same file: if VYP-01 (integer overflow)
-  matches in a file, suppress VYP-21 (arithmetic edge case) in the same file.
-  VYP-01 is the broader finding.
-
-### Phase 2 Output
-
-Candidate findings list. Count and log: "Pattern scan found {N} candidates
-across {M} files."
+1. Resolve contracts roots from `contracts_dir` or auto-detect.
+2. Build inventory of `.vy` files.
+3. Apply classification:
+- `mock`, `bridge`, `production`, `excluded`.
+4. Parse pragma version for each production/bridge contract.
+5. Abort if any target file is `<0.4.0` or unparsable under `strict=true`.
 
 ---
 
-## Phase 3: Semantic Validation
+## Phase 2: Rule Loading
 
-Grep hits are candidates, not confirmed findings. This phase validates each
-candidate by reading the surrounding code and applying Vyper-specific knowledge.
+Load `vuln-rule-registry.json`.
 
-### Semantic-Only Patterns
+Per rule, use:
+- `rule_id`
+- `severity`
+- `scannable` boolean
+- `trigger_regex` (required when `scannable=true`)
+- `applies_to_versions`
+- `cwe`
+- `description`
+- `remediation`
 
-For VYP-* patterns marked `semantic_only` (not grep-scannable):
-- These require reading code to detect — no grep shortcut exists
-- Read each production contract file and check for these patterns
-- Common semantic-only patterns: logic errors, missing validation, incorrect
-  state machine transitions
+Rules without executable regex are treated as semantic-only.
 
-### Validation Strategy
+Load `vyper-advisory-catalog.json` and validate against
+`vyper-advisory-catalog.schema.json`.
 
-**If total candidates > 15**: spawn up to 3 Explore subagents via Task tool.
+Advisory freshness behavior:
+- Missing/invalid advisory catalog under `strict=true` => abort.
+- Catalog stale relative to `last_reviewed_at` + `stale_after_days` => emit warning
+  in `warnings[]`, do not block by itself.
 
-Partition candidates across subagents by contract file. Each subagent prompt
-must include:
-
-```
-Role: "You are a Vyper security analyst validating vulnerability candidates.
-You have deep knowledge of Vyper 0.4.x semantics and DeFi protocol patterns."
-
-Instructions:
-1. Read each assigned contract file in full.
-2. For each candidate finding, examine the code at the specified line and
-   surrounding context (at least 20 lines above and below).
-3. Determine if the candidate is a TRUE finding or FALSE POSITIVE.
-4. Apply Vyper language edge cases: [key points from vyper-language-edges.md]
-5. Apply rationalization rejection: [key points from rationalizations-to-reject.md]
-6. Also check for semantic-only patterns in the assigned files.
-
-Return format (one row per finding):
-| VYP-ID | File:Line | Severity | Description | Evidence | False Positive? | Reasoning |
-```
-
-**If total candidates <= 15**: validate inline by reading each file at the
-candidate line, examining context, and making the determination directly.
-
-### Validation Criteria
-
-A candidate is CONFIRMED if:
-- The code actually exhibits the pattern described
-- The pattern is reachable in a realistic execution path
-- No mitigating control exists that fully prevents exploitation
-- The rationalization-to-reject check does not apply
-
-A candidate is a FALSE POSITIVE if:
-- The grep match is syntactic but the semantic pattern is absent
-- A mitigating control fully prevents the issue
-- The code is unreachable or in a Mock contract
+Load suppression matrix from `suppression-matrix.md`.
+Only apply explicitly listed suppression pairs.
 
 ---
 
-## Phase 4: Checklist Deep Scan
+## Phase 3: Candidate Generation
 
-Walk each production contract through applicable security checklists. This
-catches issues that don't map to a single VYP pattern but represent protocol-
-level security gaps.
+For each rule where `scannable=true` and version applies:
+1. Run regex against production + bridge files (skip excluded and mocks).
+2. Generate candidates with:
+- `rule_id`
+- `contract`
+- `function` (best effort)
+- `span`
+- `matched_text`
+- `candidate_reason`
 
-### Checklist Assignment
+For `scannable=false` rules:
+- Generate semantic review tasks by file/function based on rule applicability.
 
-| Contract Type | Checklists Applied |
-|---|---|
-| All production contracts | `defi-lending-checklist.md` (63 checks) |
-| Contracts in `p2p/` or with `P2P` in name | + `p2p-lending-checklist.md` (15 checks) |
-| Vault contracts (ERC4626 interface) | + `erc4626-vault-checklist.md` (35 checks) |
-
-### Execution
-
-For each applicable check in each checklist:
-
-1. Read the check's description and verification criteria
-2. Read the relevant code sections in the target contract
-3. Determine status:
-   - `PASS` — requirement fully met with evidence
-   - `FAIL` — requirement violated, describe the gap
-   - `PARTIAL` — partially met, describe what's missing
-   - `N_A` — check not applicable to this contract (explain why)
-4. Record evidence: specific line numbers, code snippets, or absence of expected code
-
-### Output Per Check
-
-```
-| Check ID | Contract | Status | Evidence |
-```
+Rules with mandatory semantic depth:
+- `VYP-38`: prove target provenance + return-shape safety, not grep-only.
+- `VYP-39`: prove creation return handling and trust registration ordering.
+- `VYP-40`: prove source integrity/provenance controls for `create_copy_of`.
+- `VYP-41`: prove ABI boundary/integration risk for `@raw_return`.
+- `VYP-42`: prove reliance on legacy `selfdestruct` assumptions if flagged.
 
 ---
 
-## Phase 5: Dedup + Cross-Reference
+## Phase 4: Semantic Validation
 
-### Merge Findings
+Validate all candidates by reading full relevant function/context.
 
-Combine:
-- Confirmed pattern scan findings (from Phase 3)
-- Checklist failures and partial findings (from Phase 4)
+Validation criteria for confirmed findings:
+- Pattern present semantically.
+- Realistic reachability.
+- No complete mitigation.
+- Dismissal does not match rationalization anti-patterns.
 
-### Dedup Rules
+Critical/High findings:
+- Require independent validation pass by separate analysis step.
 
-Two findings are DUPLICATE CANDIDATES if any of:
-- Same file, line numbers within +/- 10 lines
-- Same VYP-ID regardless of file location (same root cause)
-- Same checklist check ID on the same contract
-
-When deduplicating:
-- Keep the entry with HIGHEST severity
-- Merge evidence from both entries
-- Note both sources: "Identified by pattern scan (VYP-XX) and checklist (CHECK-YY)"
-- VYP pattern severity takes precedence over checklist severity
-
-### Cross-Reference with Known Findings
-
-If `audit-context.md` was loaded and contains prior findings:
-
-- For each current finding, compare against known findings:
-  - Same file + description similarity > 0.6 (word overlap) → `RECURRING`
-  - No match in known findings → `NEW`
-- For each known finding not matched by any current finding:
-  - If prior status was "open" → may be `RESOLVED` (but flag for manual check)
-
-If no audit-context.md: all findings are `NEW`.
-
-### Write Output
-
-Write `vuln-scan-findings.md` (path determined by orchestrator, or current
-directory if standalone).
-
-Format:
-
-```markdown
-# Vulnerability Scan Findings
-
-**Scan Date**: {date}
-**Contracts Scanned**: {count} production, {count} bridge, {count} mock (excluded)
-**Compiler Versions**: {list}
-
-## Compiler CVE Assessment
-
-{compiler version analysis}
-
-## Findings
-
-| ID | Severity | Contract:Line | Description | Evidence | Status |
-|----|----------|---------------|-------------|----------|--------|
-| VYP-XX | Critical | File.vy:123 | ... | ... | NEW |
-
-## Checklist Coverage
-
-| Checklist | Total Checks | Pass | Fail | Partial | N/A |
-|-----------|-------------|------|------|---------|-----|
-
-## Suppressed Candidates
-
-| VYP-ID | File:Line | Suppressed By | Reason |
-```
+Each confirmed finding must include:
+- `finding_id` deterministic hash of (`rule_id`,`contract`,`function`,`span`,`evidence_fingerprint`)
+- `rule_id`
+- `severity`
+- `status` default `NEW`
+- `confidence` in `[0,1]`
+- `evidence`
+- `recommendation`
+- `source="vuln-scan"`
 
 ---
 
-## Standalone Mode
+## Phase 5: Optional Profile Checklists
 
-When invoked directly (not via vyper-full-audit orchestrator):
+If profile is non-generic, run selected checklist pack.
 
-1. Run Phase 1 (auto-detect everything)
-2. Run Phases 2-5 sequentially
-3. Print findings to console instead of writing to output_dir
-4. Optionally write to file if `output=<path>` argument provided
+Checklist finding ID behavior:
+- Keep checklist-native `rule_id` (`CL-*`, `LP-*`, `P2P-*`, `E46-*`, etc.)
+- Do not coerce to synthetic `CHECK-*`.
+
+Checklist statuses:
+- `PASS|FAIL|PARTIAL|N_A`
+
+Only `FAIL` and `PARTIAL` produce security findings.
+
+---
+
+## Phase 6: Dedup + Correlation
+
+Dedup key:
+- `(rule_id, contract, function, normalized_sink_or_state_target, span)`
+
+Rules:
+- Never dedup across different contracts.
+- Same `rule_id` in multiple contracts => keep separate findings.
+- Cross-contract recurrence goes to a systemic-pattern section, not dedup merge.
+
+Suppression:
+- Apply only matrix-defined suppressions where both findings share contract and overlapping sink/callsite context.
+
+---
+
+## Phase 7: Delta Classification
+
+If prior findings are available from context:
+- Match by contract + overlapping span/function + similarity.
+- Status output uses canonical enum:
+`NEW|RECURRING|REGRESSION|ACKNOWLEDGED|RESOLVED|INCOMPLETE`
+
+No prior audit data:
+- Current findings default `NEW`.
+
+---
+
+## Phase 8: Output
+
+Write canonical JSON first:
+- `{output_dir}/findings.json`
+
+Write render markdown:
+- `{output_dir}/vuln-scan-findings.md`
+
+`findings.json` must validate against `findings-artifact.schema.json`.
+Schema failure => abort.
+
+Minimum sections in JSON:
+- scan metadata
+- compiler/cve assessment
+- warnings array
+- findings array
+- suppressed candidates array
+- profile checklist coverage (if applicable)
+- systemic patterns
+- feature-risk summary (when VYP-38..42 related evidence exists)
+
+Markdown is derived from JSON only.
 
 ---
 
 ## Error Handling
 
-- If a reference file is missing: warn, continue without that ruleset. Do NOT
-  abort the entire scan.
-- If a contract file cannot be read: log error, skip file, continue.
-- If a subagent fails: log failure, validate remaining candidates inline.
-- If Grep tool returns no results for a pattern: that pattern has no candidates.
-  This is normal — do not fabricate matches.
+- Missing required references under strict mode => abort.
+- Missing/invalid advisory catalog under strict mode => abort.
+- Regex compile failure for a rule => mark rule execution `INCOMPLETE`; if rule is Critical/High and applicable => abort.
+- File read failures on production/bridge contracts => `INCOMPLETE`; abort if this touches Critical/High path.
+- No findings is valid.
+
+---
 
 ## Anti-Patterns
 
-- Do not report a finding based solely on a grep hit without reading context.
-- Do not skip bridge contracts — they handle real assets.
-- Do not assume external calls are safe because they target "trusted" protocols.
-- Do not downgrade cross-contract issues because "each contract is independently safe."
-- Read `references/rationalizations-to-reject.md` — if your dismissal reasoning
-  matches an anti-pattern, the finding stands.
+- Do not report grep-only findings without semantic confirmation.
+- Do not suppress findings with ad-hoc logic not listed in matrix.
+- Do not downscore confidence without explicit evidence.
+- Do not merge separate contracts into one finding.
+- Do not treat stale advisory warnings as automatic gate block unless policy explicitly requires it.

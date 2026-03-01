@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyper-defi-audit/schemas/findings-artifact.schema.json",
+  "title": "FindingsArtifact",
+  "type": "object",
+  "required": [
+    "meta",
+    "compiler_assessment",
+    "warnings",
+    "findings",
+    "suppressed_candidates",
+    "systemic_patterns"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["generated_at", "profile", "contracts_scanned"],
+      "additionalProperties": false,
+      "properties": {
+        "generated_at": {"type": "string", "minLength": 1},
+        "profile": {"type": "string"},
+        "contracts_scanned": {
+          "type": "object",
+          "required": ["production", "bridge", "mock", "excluded"],
+          "additionalProperties": false,
+          "properties": {
+            "production": {"type": "integer", "minimum": 0},
+            "bridge": {"type": "integer", "minimum": 0},
+            "mock": {"type": "integer", "minimum": 0},
+            "excluded": {"type": "integer", "minimum": 0}
+          }
+        }
+      }
+    },
+    "compiler_assessment": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["version", "contracts", "risk"],
+        "additionalProperties": false,
+        "properties": {
+          "version": {"type": "string"},
+          "contracts": {"type": "integer", "minimum": 0},
+          "risk": {"type": "string", "enum": ["None", "Low", "Medium", "High", "Unknown"]},
+          "notes": {"type": "string"}
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "level", "message"],
+        "additionalProperties": false,
+        "properties": {
+          "code": {"type": "string", "minLength": 1},
+          "level": {"type": "string", "enum": ["INFO", "WARN"]},
+          "message": {"type": "string", "minLength": 1},
+          "source": {"type": "string"},
+          "context": {
+            "type": "object",
+            "additionalProperties": {
+              "type": ["string", "number", "boolean", "null"]
+            }
+          }
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {"$ref": "finding.schema.json"}
+    },
+    "suppressed_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["rule_id", "contract", "span", "suppressed_by", "reason"],
+        "additionalProperties": false,
+        "properties": {
+          "rule_id": {"type": "string"},
+          "contract": {"type": "string"},
+          "span": {
+            "type": "object",
+            "required": ["start_line", "end_line"],
+            "additionalProperties": false,
+            "properties": {
+              "start_line": {"type": "integer", "minimum": 1},
+              "end_line": {"type": "integer", "minimum": 1}
+            }
+          },
+          "suppressed_by": {"type": "string"},
+          "reason": {"type": "string"}
+        }
+      }
+    },
+    "checklist_coverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["checklist", "total", "pass", "fail", "partial", "na"],
+        "additionalProperties": false,
+        "properties": {
+          "checklist": {"type": "string"},
+          "total": {"type": "integer", "minimum": 0},
+          "pass": {"type": "integer", "minimum": 0},
+          "fail": {"type": "integer", "minimum": 0},
+          "partial": {"type": "integer", "minimum": 0},
+          "na": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "systemic_patterns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["pattern", "contracts", "finding_ids", "max_severity"],
+        "additionalProperties": false,
+        "properties": {
+          "pattern": {"type": "string"},
+          "contracts": {"type": "array", "items": {"type": "string"}},
+          "finding_ids": {"type": "array", "items": {"type": "string"}},
+          "max_severity": {"type": "string", "enum": ["Critical", "High", "Medium", "Low", "Informational"]}
+        }
+      }
+    },
+    "feature_risk_summary": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["feature", "contracts", "related_rule_ids", "notes"],
+        "additionalProperties": false,
+        "properties": {
+          "feature": {"type": "string"},
+          "contracts": {"type": "array", "items": {"type": "string"}},
+          "related_rule_ids": {"type": "array", "items": {"type": "string"}},
+          "notes": {"type": "string"}
+        }
+      }
+    }
+  }
+}

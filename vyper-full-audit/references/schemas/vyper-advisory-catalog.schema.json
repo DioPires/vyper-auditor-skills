@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyper-defi-audit/schemas/vyper-advisory-catalog.schema.json",
+  "title": "VyperAdvisoryCatalog",
+  "type": "object",
+  "required": ["version", "scope", "last_reviewed_at", "sources", "entries"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"type": "string", "minLength": 1},
+    "scope": {"type": "string", "const": "Vyper >=0.4.0"},
+    "last_reviewed_at": {"type": "string", "format": "date"},
+    "stale_after_days": {"type": "integer", "minimum": 1},
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "url"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "url": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "rule_id",
+          "advisory_id",
+          "title",
+          "affected_versions",
+          "fixed_versions",
+          "status",
+          "url"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "rule_id": {"type": "string", "pattern": "^VYP-[0-9]{2}$"},
+          "advisory_id": {"type": "string", "minLength": 1},
+          "cve": {"type": "string"},
+          "title": {"type": "string", "minLength": 1},
+          "affected_versions": {"type": "string", "minLength": 1},
+          "fixed_versions": {"type": "string", "minLength": 1},
+          "status": {"type": "string", "enum": ["fixed", "unfixed"]},
+          "url": {"type": "string", "minLength": 1},
+          "notes": {"type": "string"}
+        }
+      }
+    }
+  }
+}

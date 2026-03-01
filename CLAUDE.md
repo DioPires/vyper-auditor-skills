@@ -1,21 +1,26 @@
 # vyper-defi-audit
 
-Vyper 0.4.x smart contract audit skills for Claude Code.
+Generic Vyper `>=0.4.0` smart contract audit skills with mandatory production
+gating.
 
 ## Structure
 
-- 5 skills in separate directories, each with SKILL.md
-- Shared references in `vyper-full-audit/references/` (other skills symlink to it)
-- `install.sh` creates symlinks to `~/.claude/skills/`
+- 5 skills in separate directories, each with `SKILL.md`
+- Shared references in `vyper-full-audit/references/` (others symlink)
+- Canonical schemas in `vyper-full-audit/references/schemas/`
+- `install.sh` creates symlinks in `~/.claude/skills/`
 
-## Development
+## Development Rules
 
-- Reference files are the source of truth for patterns, checklists, and edges
-- SKILL.md files must stay under 500 lines — delegate to reference files
-- All VYP patterns target Vyper >= 0.4.0 only
-- Test changes by running `/vyper-vuln-scan` or `/vyper-full-audit` against a Vyper project
+- Canonical source of truth: JSON artifacts validated by schemas
+- Markdown artifacts are render outputs only
+- Full audit defaults to mandatory `prod-gate`
+- All behavior targets Vyper `>=0.4.0`
+- Validate changes with representative projects and gate outcomes (`PASS`/`BLOCKED`)
 
 ## Naming Conventions
 
-- Mock contracts: `Mock*.vy` prefix (excluded from production audit)
-- Bridge contracts: non-Mock files in `auxiliary/` (included in production audit)
+- Mock contracts: `Mock*.vy` or test paths (`/mock`, `/test`)
+- Bridge contracts: non-mock files in `auxiliary/`
+- Finding identity: `rule_id` + deterministic `finding_id`
+

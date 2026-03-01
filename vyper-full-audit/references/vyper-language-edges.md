@@ -1,6 +1,6 @@
 # Vyper 0.4.x Language Edges
 
-15 Vyper 0.4.x behaviors that change risk analysis compared to Solidity.
+19 Vyper 0.4.x behaviors that change risk analysis compared to Solidity.
 
 These are auditor gotchas: language semantics that shift the threat model in ways
 that Solidity-trained auditors may not expect. Each entry explains the audit impact,
@@ -225,3 +225,43 @@ the key difference from Solidity or pre-0.4.0 Vyper, and specific code patterns 
   cleanly). Blueprint verified on-chain with ERC-5202 preamble. Mutable blueprint addresses
   enabling malicious implementation swap. Factory contracts that don't validate the deployed
   contract's initialization succeeded.
+
+## 16. skip_contract_check on Interface Binding
+- **Audit impact**: `skip_contract_check=True` bypasses interface-level contract checks.
+  This is sometimes required (for specific precompiles or low-level integrations), but it
+  removes safety assumptions that typed calls usually provide. If used without strict target
+  provenance and return-shape checks, a trust boundary can collapse silently.
+- **Key difference**: Solidity frequently uses low-level calls and manual ABI decoding by
+  default. Vyper typically encourages explicit interfaces. `skip_contract_check` reintroduces
+  low-level trust risk into interface-style code.
+- **Watch for**: User-controlled or mutable targets combined with `skip_contract_check`.
+  Missing allowlists. Missing explicit return validation before state mutation.
+
+## 17. Contract Creation Builtins Return Semantics
+- **Audit impact**: `raw_create`, `create_copy_of`, `create_minimal_proxy_to`, and
+  `create_from_blueprint` return addresses that must be validated before trust. Treating
+  return addresses as always-valid can register unusable or malicious instances.
+- **Key difference**: Solidity `new` flows often hide several checks in higher-level tooling.
+  Vyper builtins expose more direct creation semantics and therefore require explicit post-create
+  validation discipline in contract logic.
+- **Watch for**: Missing `!= empty(address)` assertions, missing code presence checks,
+  and registry writes before validation completes.
+
+## 18. @raw_return ABI Contract
+- **Audit impact**: `@raw_return` bypasses normal ABI return encoding expectations. Integrators
+  using typed interfaces may decode unexpected payloads or assume success semantics that are
+  not guaranteed, causing downstream logic breaks.
+- **Key difference**: Solidity has equivalent low-level escape hatches but no direct Vyper-style
+  annotation. In Vyper, a single decorator can move a function outside standard interface
+  expectations while still appearing in otherwise typed code.
+- **Watch for**: `@raw_return` used on externally consumed functions without explicit caller
+  compatibility tests and documented return contracts.
+
+## 19. selfdestruct Semantics on Modern EVM
+- **Audit impact**: Historical assumptions about `selfdestruct` full-deletion behavior are no
+  longer safe defaults on modern networks. Security controls that rely on full account wipe or
+  lifecycle finality via `selfdestruct` can fail.
+- **Key difference**: Older EVM mental models treated `selfdestruct` as a strong terminal state.
+  Post-Cancun semantics significantly narrow this guarantee.
+- **Watch for**: Kill-switch designs, withdrawal safety, or upgrade finalization logic that
+  assumes full wipe semantics. Prefer explicit disabled-state flows and recovery routines.

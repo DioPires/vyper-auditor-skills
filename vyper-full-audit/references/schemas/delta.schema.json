@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyper-defi-audit/schemas/delta.schema.json",
+  "title": "DeltaRecord",
+  "type": "object",
+  "required": ["finding_id", "rule_id", "current_status", "classification"],
+  "additionalProperties": false,
+  "properties": {
+    "finding_id": {"type": "string", "minLength": 1},
+    "rule_id": {"type": "string", "minLength": 1},
+    "current_status": {
+      "type": "string",
+      "enum": ["NEW", "RECURRING", "REGRESSION", "ACKNOWLEDGED", "RESOLVED", "INCOMPLETE"]
+    },
+    "prior_status": {"type": "string"},
+    "classification": {
+      "type": "string",
+      "enum": ["NEW", "RECURRING", "REGRESSION", "ACKNOWLEDGED", "RESOLVED", "INCOMPLETE"]
+    },
+    "notes": {"type": "string"}
+  }
+}

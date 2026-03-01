@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyper-defi-audit/schemas/vuln-rule.schema.json",
+  "title": "VulnerabilityRule",
+  "type": "object",
+  "required": ["id", "name", "severity", "scannable", "applies_to_versions", "description", "remediation"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {"type": "string", "pattern": "^VYP-[0-9]{2}$"},
+    "name": {"type": "string", "minLength": 1},
+    "severity": {"type": "string", "enum": ["Critical", "High", "Medium", "Low", "Informational"]},
+    "scannable": {"type": "boolean"},
+    "trigger_regex": {
+      "anyOf": [
+        {"type": "string", "minLength": 1},
+        {"type": "null"}
+      ]
+    },
+    "applies_to_versions": {"type": "string", "minLength": 1},
+    "cwe": {"type": "string"},
+    "description": {"type": "string", "minLength": 1},
+    "remediation": {"type": "string", "minLength": 1},
+    "tags": {"type": "array", "items": {"type": "string"}}
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyper-defi-audit/schemas/compliance.schema.json",
+  "title": "ComplianceArtifact",
+  "type": "object",
+  "required": ["meta", "requirements", "mappings", "verification", "invariants", "coverage"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["generated_at", "spec_files", "contracts_verified"],
+      "additionalProperties": false,
+      "properties": {
+        "generated_at": {"type": "string"},
+        "spec_files": {"type": "integer", "minimum": 0},
+        "contracts_verified": {"type": "integer", "minimum": 0}
+      }
+    },
+    "requirements": {
+      "type": "array",
+      "items": {"$ref": "requirement.schema.json"}
+    },
+    "mappings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["rule_id", "mapped_contracts", "mapping_confidence"],
+        "additionalProperties": false,
+        "properties": {
+          "rule_id": {"type": "string"},
+          "mapped_contracts": {"type": "array", "items": {"type": "string"}},
+          "mapped_functions": {"type": "array", "items": {"type": "string"}},
+          "evidence_spans": {"type": "array", "items": {"type": "string"}},
+          "mapping_confidence": {"type": "number", "minimum": 0, "maximum": 1}
+        }
+      }
+    },
+    "verification": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["rule_id", "status", "evidence"],
+        "additionalProperties": false,
+        "properties": {
+          "rule_id": {"type": "string"},
+          "status": {"type": "string", "enum": ["PASS", "FAIL", "PARTIAL", "UNVERIFIED", "UNMAPPED"]},
+          "severity_hint": {"type": "string"},
+          "evidence": {"type": "array", "items": {"type": "string"}},
+          "gap_description": {"type": "string"}
+        }
+      }
+    },
+    "invariants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "status", "evidence"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {"type": "string"},
+          "status": {"type": "string", "enum": ["PASS", "FAIL", "PARTIAL", "UNVERIFIED"]},
+          "evidence": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "required": ["total_requirements", "pass", "fail", "partial", "unverified", "unmapped"],
+      "additionalProperties": false,
+      "properties": {
+        "total_requirements": {"type": "integer", "minimum": 0},
+        "pass": {"type": "integer", "minimum": 0},
+        "fail": {"type": "integer", "minimum": 0},
+        "partial": {"type": "integer", "minimum": 0},
+        "unverified": {"type": "integer", "minimum": 0},
+        "unmapped": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}

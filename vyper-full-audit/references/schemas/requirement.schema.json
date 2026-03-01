@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyper-defi-audit/schemas/requirement.schema.json",
+  "title": "Requirement",
+  "type": "object",
+  "required": ["rule_id", "text", "source_file", "normative_level", "severity_hint"],
+  "additionalProperties": false,
+  "properties": {
+    "rule_id": {"type": "string", "minLength": 1},
+    "text": {"type": "string", "minLength": 1},
+    "source_file": {"type": "string", "minLength": 1},
+    "normative_level": {
+      "type": "string",
+      "enum": ["MUST", "SHALL", "SHOULD", "MAY", "UNSPECIFIED"]
+    },
+    "severity_hint": {
+      "type": "string",
+      "enum": ["High", "Medium", "Low"]
+    },
+    "keywords": {"type": "array", "items": {"type": "string"}}
+  }
+}

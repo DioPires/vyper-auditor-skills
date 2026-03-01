@@ -1,0 +1,32 @@
+{
+  "prod_gate": "BLOCKED",
+  "assurance_checks": "FAIL",
+  "blocked_reasons": [
+    "CRITICAL_HIGH_INCOMPLETE",
+    "ASSURANCE_FEATURE_CONDITIONAL_MISSING:EVM_ABI_RAW_RETURN"
+  ],
+  "warnings": [
+    {
+      "code": "ADVISORY_CATALOG_STALE",
+      "level": "WARN",
+      "message": "Advisory catalog older than stale_after_days threshold.",
+      "source": "vyper-advisory-catalog.json",
+      "context": {
+        "last_reviewed_at": "2026-01-01",
+        "stale_after_days": 30
+      }
+    }
+  ],
+  "critical_high_validation_summary": {
+    "total": 3,
+    "confirmed": 2,
+    "rejected": 0,
+    "unverified": 1
+  },
+  "artifact_paths": {
+    "audit_context": ".claude/audit-sessions/20260301-120000/audit-context.json",
+    "findings": ".claude/audit-sessions/20260301-120000/findings.json",
+    "compliance": ".claude/audit-sessions/20260301-120000/compliance.json",
+    "audit_report": ".claude/audit-sessions/20260301-120000/audit-report.json"
+  }
+}

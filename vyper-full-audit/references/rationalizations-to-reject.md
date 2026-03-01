@@ -142,3 +142,34 @@ Based on Trail of Bits "Building Secure Contracts" — adapted for Vyper DeFi va
 | 8 | Oracle is reliable | Chainlink has had outages and stale prices |
 | 9 | Compiler version is fine | 7 CVEs affect >= 0.4.0, 1 unfixed |
 | 10 | It's a mock contract | Deployment scripts don't enforce naming conventions |
+
+---
+
+## Addendum: Feature-Risk Rationalizations (VYP-38 to VYP-42)
+
+### 11. "skip_contract_check is safe because interface is typed"
+
+**Rationalization**: The interface definition protects us even if `skip_contract_check=True`.
+
+**Rejected because**: `skip_contract_check=True` explicitly bypasses interface contract checks.
+Type signatures in source do not enforce target trustworthiness or runtime return-shape behavior.
+
+**Instead**: Require allowlisted/immutable targets plus explicit return-shape validation.
+
+### 12. "raw_return is just an optimization detail"
+
+**Rationalization**: `@raw_return` only affects gas and has no security impact.
+
+**Rejected because**: `@raw_return` changes ABI boundary assumptions. Integrators may decode
+payloads incorrectly, causing authorization/accounting side effects in dependent systems.
+
+**Instead**: Treat `@raw_return` as integration risk. Require caller compatibility tests.
+
+### 13. "selfdestruct still fully disables contract logic"
+
+**Rationalization**: `selfdestruct` guarantees terminal disable semantics.
+
+**Rejected because**: Modern EVM semantics changed historical assumptions. Security controls
+must not rely on legacy full-delete behavior.
+
+**Instead**: Use explicit kill-state flags and withdrawal/disable flows independent of selfdestruct.

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyper-defi-audit/schemas/checklist-item.schema.json",
+  "title": "ChecklistItem",
+  "type": "object",
+  "required": ["rule_id", "title", "domain", "verify_steps"],
+  "additionalProperties": false,
+  "properties": {
+    "rule_id": {"type": "string", "minLength": 1},
+    "title": {"type": "string", "minLength": 1},
+    "domain": {"type": "string", "minLength": 1},
+    "grep_hints": {"type": "array", "items": {"type": "string"}},
+    "verify_steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "severity_hint": {"type": "string", "enum": ["High", "Medium", "Low", "Informational"]}
+  }
+}

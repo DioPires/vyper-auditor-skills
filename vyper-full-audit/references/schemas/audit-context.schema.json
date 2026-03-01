@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyper-defi-audit/schemas/audit-context.schema.json",
+  "title": "AuditContext",
+  "type": "object",
+  "required": ["meta", "contracts", "trust_boundaries", "external_calls", "state_map", "language_feature_usage", "prior_findings"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["generated_at", "project_root"],
+      "additionalProperties": false,
+      "properties": {
+        "generated_at": {"type": "string"},
+        "project_root": {"type": "string"},
+        "contracts_roots": {"type": "array", "items": {"type": "string"}},
+        "specs_roots": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "contracts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "loc", "pragma", "classification"],
+        "additionalProperties": false,
+        "properties": {
+          "path": {"type": "string"},
+          "loc": {"type": "integer", "minimum": 0},
+          "pragma": {"type": "string"},
+          "classification": {"type": "string", "enum": ["production", "bridge", "mock", "excluded"]}
+        }
+      }
+    },
+    "trust_boundaries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["contract", "function", "principal", "level"],
+        "additionalProperties": false,
+        "properties": {
+          "contract": {"type": "string"},
+          "function": {"type": "string"},
+          "principal": {"type": "string"},
+          "level": {"type": "string", "enum": ["trusted", "semi-trusted", "external", "untrusted"]},
+          "notes": {"type": "string"}
+        }
+      }
+    },
+    "external_calls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["contract", "function", "span", "call_type", "target_source"],
+        "additionalProperties": false,
+        "properties": {
+          "contract": {"type": "string"},
+          "function": {"type": "string"},
+          "span": {
+            "type": "object",
+            "required": ["start_line", "end_line"],
+            "additionalProperties": false,
+            "properties": {
+              "start_line": {"type": "integer", "minimum": 1},
+              "end_line": {"type": "integer", "minimum": 1}
+            }
+          },
+          "call_type": {"type": "string", "enum": ["extcall", "staticcall", "raw_call", "send"]},
+          "target_source": {"type": "string", "enum": ["immutable", "storage", "parameter", "computed", "unknown"]},
+          "return_handling": {"type": "string"},
+          "risk_flags": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "state_map": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["contract", "variable", "writers", "readers"],
+        "additionalProperties": false,
+        "properties": {
+          "contract": {"type": "string"},
+          "variable": {"type": "string"},
+          "criticality": {"type": "string", "enum": ["critical", "important", "normal"]},
+          "writers": {"type": "array", "items": {"type": "string"}},
+          "readers": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "language_feature_usage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["contract", "function", "span", "feature", "provenance"],
+        "additionalProperties": false,
+        "properties": {
+          "contract": {"type": "string"},
+          "function": {"type": "string"},
+          "span": {
+            "type": "object",
+            "required": ["start_line", "end_line"],
+            "additionalProperties": false,
+            "properties": {
+              "start_line": {"type": "integer", "minimum": 1},
+              "end_line": {"type": "integer", "minimum": 1}
+            }
+          },
+          "feature": {
+            "type": "string",
+            "enum": [
+              "skip_contract_check",
+              "raw_create",
+              "create_copy_of",
+              "create_minimal_proxy_to",
+              "create_from_blueprint",
+              "raw_return",
+              "selfdestruct"
+            ]
+          },
+          "provenance": {"type": "string", "enum": ["source", "imported-interface", "inferred-callgraph"]},
+          "notes": {"type": "string"}
+        }
+      }
+    },
+    "prior_findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["rule_id", "status", "description"],
+        "additionalProperties": false,
+        "properties": {
+          "rule_id": {"type": "string"},
+          "contract": {"type": "string"},
+          "function": {"type": "string"},
+          "status": {"type": "string", "enum": ["NEW", "RECURRING", "REGRESSION", "ACKNOWLEDGED", "RESOLVED", "INCOMPLETE", "OPEN", "FIXED", "WONTFIX"]},
+          "severity": {"type": "string"},
+          "description": {"type": "string"}
+        }
+      }
+    }
+  }
+}
