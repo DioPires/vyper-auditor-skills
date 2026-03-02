@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://vyper-defi-audit/schemas/vuln-rule.schema.json",
+  "$id": "https://vyper-auditor-skills/schemas/vuln-rule.schema.json",
   "title": "VulnerabilityRule",
   "type": "object",
   "required": ["id", "name", "severity", "scannable", "applies_to_versions", "description", "remediation"],

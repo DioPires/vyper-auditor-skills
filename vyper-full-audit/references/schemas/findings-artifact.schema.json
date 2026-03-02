@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://vyper-defi-audit/schemas/findings-artifact.schema.json",
+  "$id": "https://vyper-auditor-skills/schemas/findings-artifact.schema.json",
   "title": "FindingsArtifact",
   "type": "object",
   "required": [

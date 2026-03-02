@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://vyper-defi-audit/schemas/vyper-advisory-catalog.schema.json",
+  "$id": "https://vyper-auditor-skills/schemas/vyper-advisory-catalog.schema.json",
   "title": "VyperAdvisoryCatalog",
   "type": "object",
   "required": ["version", "scope", "last_reviewed_at", "sources", "entries"],

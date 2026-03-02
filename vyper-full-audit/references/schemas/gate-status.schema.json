@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://vyper-defi-audit/schemas/gate-status.schema.json",
+  "$id": "https://vyper-auditor-skills/schemas/gate-status.schema.json",
   "title": "GateStatus",
   "type": "object",
   "required": ["prod_gate", "assurance_checks", "blocked_reasons", "warnings", "artifact_paths"],

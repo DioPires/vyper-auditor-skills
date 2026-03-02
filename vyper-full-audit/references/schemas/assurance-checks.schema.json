@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://vyper-defi-audit/schemas/assurance-checks.schema.json",
+  "$id": "https://vyper-auditor-skills/schemas/assurance-checks.schema.json",
   "title": "AssuranceChecks",
   "type": "object",
   "required": ["status", "dimensions"],

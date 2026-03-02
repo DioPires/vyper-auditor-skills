@@ -1,4 +1,4 @@
-# vyper-defi-audit
+# vyper-auditor-skills
 
 Generic Vyper `>=0.4.0` smart contract audit skills with mandatory production
 gating.

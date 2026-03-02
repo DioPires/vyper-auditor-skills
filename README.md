@@ -1,4 +1,4 @@
-# vyper-defi-audit (v2)
+# vyper-auditor-skills (v2)
 
 Generic security audit skills for Vyper `>=0.4.0` with mandatory production
 release gating.
@@ -19,8 +19,8 @@ fuzz/property/invariant testing.
 ## Installation
 
 ```bash
-git clone <repo-url> ~/Documents/Personal/code/vyper-defi-audit
-cd vyper-defi-audit
+git clone <repo-url> ~/Documents/Personal/code/vyper-auditor-skills
+cd vyper-auditor-skills
 ./install.sh
 ```
 
@@ -310,7 +310,7 @@ Remediation pattern:
 ## Repository Layout
 
 ```text
-vyper-defi-audit/
+vyper-auditor-skills/
 ├── vyper-full-audit/
 │   ├── SKILL.md
 │   └── references/

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://vyper-defi-audit/schemas/requirement.schema.json",
+  "$id": "https://vyper-auditor-skills/schemas/requirement.schema.json",
   "title": "Requirement",
   "type": "object",
   "required": ["rule_id", "text", "source_file", "normative_level", "severity_hint"],
