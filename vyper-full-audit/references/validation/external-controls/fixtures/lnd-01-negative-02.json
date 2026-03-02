@@ -1,0 +1,31 @@
+{
+  "fixture_id": "lnd-01-negative-02",
+  "schema_pack_version": "v3.1.0",
+  "family": "LND",
+  "rule_id": "LND-01",
+  "profile": "evm-lending",
+  "tier": "TIER2",
+  "blocking_eligible": false,
+  "case_type": "negative",
+  "input": {
+    "contracts": [
+      {
+        "path": "references/validation/external-controls/contracts/fixtures/lnd-01_negative_02.vy",
+        "language": "vyper",
+        "snippet": "# synthetic fixture for LND-01 (negative)"
+      }
+    ],
+    "assumptions": {
+      "vyper_scope_only": true,
+      "profile_selected": true
+    }
+  },
+  "expected": {
+    "finding_count": 0,
+    "rule_ids": [],
+    "primary_status": null,
+    "severity": null,
+    "blocking_candidate_count": 0,
+    "delta_classification": "UNMATCHED"
+  }
+}

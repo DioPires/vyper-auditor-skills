@@ -2,36 +2,25 @@
 
 ## Scope
 
-README and skill-contract alignment checks.
+README, skill contracts, schema docs, and report template alignment checks.
 
 ## Verified
 
 1. `key=value` grammar preserved.
-2. Required canonical artifacts documented.
-3. New required fields documented:
-- `warnings[]` propagation
-- `language_feature_usage[]`
-- `feature_risk_summary[]`
-4. Advisory freshness semantics documented:
-- missing/invalid strict => blocked
-- stale => warning only
-5. Coverage matrix expanded to include `VYP-01..VYP-42`.
-6. Sign-off protocol and required validation artifacts documented.
+2. Vyper-only source scope preserved.
+3. Expanded profile matrix documented, including explicit EVM-profile scope sentence.
+4. Deterministic gate precedence documented (`BLOCKED`-only blocking set).
+5. Warning semantics documented as non-blocking unless escalated.
+6. Toolchain + standards summary fields documented across schema and report contracts.
+7. Canonical ID ownership and alias migration policy documented.
+8. Source-lock integrity and strict placeholder-block policy documented.
+9. Missing-tool remediation contract documented with runbook reference.
+10. Gate-facing status enum normalization (`PASS|BLOCKED`) documented.
+11. Vyper-first tool policy documented (`slither` baseline, Mythril/Echidna optional adapters).
+12. Assurance engine provenance documented (`boa-pytest`/`foundry`/`echidna-harness`).
+13. Execution model contract documented (`single-threaded|fanout`) with centralized gate reducer rule.
 
 ## Result
 
 - Status: PASS
-- Date: 2026-03-01
-
-## Command Evidence
-
-```bash
-rg -n 'VYP-38|VYP-39|VYP-40|VYP-41|VYP-42|warnings\\[\\]|language_feature_usage|feature_risk_summary' README.md
-```
-
-```bash
-python3 - <<'PY'
-... parse README /vyper-* command examples and assert key=value token grammar ...
-PY
-# output: PASS 1 commands
-```
+- Date: 2026-03-02

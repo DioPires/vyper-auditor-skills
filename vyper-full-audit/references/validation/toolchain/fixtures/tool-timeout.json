@@ -1,0 +1,24 @@
+{
+  "fixture_id": "tool-timeout",
+  "schema_pack_version": "v3.1.0",
+  "scenario": "tool-timeout",
+  "input": {
+    "toolchain_mode": "enabled",
+    "requested_tools": ["slither"],
+    "tool_timeout_sec": 900,
+    "tool_availability": [
+      {
+        "tool": "slither",
+        "status": "TIMEOUT",
+        "reason_code": "TOOLCHAIN:SLITHER_TIMEOUT",
+        "install_hint": "python3 -m pip install --user slither-analyzer",
+        "install_doc_ref": "references/tool-installation.md"
+      }
+    ]
+  },
+  "expected": {
+    "toolchain_status_fail_open": "WARN",
+    "toolchain_status_fail_closed": "BLOCKED",
+    "reason_codes": ["TOOLCHAIN:SLITHER_TIMEOUT"]
+  }
+}

@@ -4,20 +4,18 @@
 
 | Scenario | Expected | Evidence Source | Result |
 |---|---|---|---|
-| missing advisory catalog in strict mode | `PROD_GATE=BLOCKED` | `vyper-full-audit/SKILL.md` required inputs + error handling | PASS |
-| stale advisory catalog | warning emitted, no standalone block | `vyper-full-audit/SKILL.md` advisory freshness behavior | PASS |
-| unverified new High finding | `PROD_GATE=BLOCKED` | `vyper-full-audit/SKILL.md` Phase 8 (`INCOMPLETE` in Critical/High) | PASS |
-| only new Medium findings + assurance PASS | gate may pass | `vyper-full-audit/SKILL.md` Phase 8 block criteria | PASS |
-| feature present without feature-targeted assurance evidence | assurance non-PASS -> blocked | `assurance-rubric.md` feature-conditional evidence + full-audit Phase 6 | PASS |
+| stale advisory catalog + otherwise pass | `PROD_GATE=PASS` with warning | warning pass-through policy | PASS |
+| toolchain enabled + fail-open true + missing tool | `toolchain_status=WARN`, gate may pass | tool runner policy | PASS |
+| toolchain enabled + fail-open true + tool compile fail | `toolchain_status=WARN`, gate may pass | tool runner policy | PASS |
+| toolchain required + missing tool | `PROD_GATE=BLOCKED` | deterministic gate precedence | PASS |
+| unverified tool Critical/High | `PROD_GATE=BLOCKED` | C/H validation policy | PASS |
+| standards shadow + failing standards checks | `standards_gate_status=WARN`, non-blocking | standards enforcement policy | PASS |
+| standards enforced + missing required selected pack | `PROD_GATE=BLOCKED` | profile strictness matrix | PASS |
+| source-lock contains placeholder pin in strict/prod-gate | `PROD_GATE=BLOCKED` | source-lock integrity policy | PASS |
+| all statuses non-blocking (`PASS|WARN|SKIPPED`) | `PROD_GATE=PASS` | deterministic gate function | PASS |
+| fanout execution + same artifact set | same deterministic final gate as single-threaded | centralized reducer rule | PASS |
 
 ## Notes
 
-- This repository defines skills/spec contracts, not executable scanner code.
-- Scenario outcomes validated at policy-contract layer in skill and rubric files.
-
-## Command Evidence
-
-```bash
-rg -n 'advisory|BLOCKED|warnings\\[\\]|INCOMPLETE|language_feature_usage|feature-conditional' \\
-  vyper-full-audit/SKILL.md vyper-full-audit/references/assurance-rubric.md
-```
+- Outcomes are contract-policy outcomes for skills/specs in this repository.
+- Gate-facing output enums are normalized to `PASS|BLOCKED`.

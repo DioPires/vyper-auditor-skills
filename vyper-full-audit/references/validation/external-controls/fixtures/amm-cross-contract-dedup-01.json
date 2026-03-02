@@ -1,0 +1,16 @@
+{
+  "fixture_id": "amm-cross-contract-dedup-01",
+  "schema_pack_version": "v3.1.0",
+  "family": "AMM",
+  "scenario": "cross-contract-dedup",
+  "input": {
+    "findings": [
+      {"rule_id": "AMM-01", "contract": "contracts/A.vy", "function": "f", "span": {"start_line": 10, "end_line": 14}},
+      {"rule_id": "AMM-01", "contract": "contracts/B.vy", "function": "f", "span": {"start_line": 10, "end_line": 14}}
+    ]
+  },
+  "expected": {
+    "deduped_count": 2,
+    "separate_contract_findings": true
+  }
+}

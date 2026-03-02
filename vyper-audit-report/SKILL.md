@@ -1,13 +1,13 @@
 ---
 name: vyper-audit-report
 description: >-
-  JSON-first report synthesizer for Vyper >=0.4.0 audits. Merges vulnerability
-  findings and spec compliance outputs, performs delta + calibration +
-  validation, and emits canonical audit report artifacts.
+  JSON-first report synthesizer for Vyper >=0.4.0 audits. Merges canonical
+  findings, compliance, and toolchain summaries with deterministic gate status
+  and standards coverage sections.
   Triggers: audit report, findings synthesis, release security report.
 ---
 
-# Vyper Audit Report v2
+# Vyper Audit Report v3
 
 You produce release-quality reports from canonical artifacts.
 
@@ -17,6 +17,9 @@ Accepted args (`key=value`):
 - `findings=<path>`
 - `compliance=<path>`
 - `audit_context=<path>`
+- `tool_findings=<path>`
+- `tool_validation=<path>`
+- `gate_status=<path>`
 - `output_dir=<path>`
 - `strict=<true|false>`
 
@@ -29,38 +32,42 @@ Defaults:
 - `findings={output_dir}/findings.json`
 - `compliance={output_dir}/compliance.json`
 - `audit_context={output_dir}/audit-context.json`
+- `tool_findings={output_dir}/tool-findings.json`
+- `tool_validation={output_dir}/tool-validation.json`
+- `gate_status={output_dir}/gate-status.json`
 
 ## Required References
 
 - `references/schemas/finding.schema.json`
 - `references/schemas/audit-report.schema.json`
+- `references/schemas/tool-findings.schema.json`
+- `references/schemas/tool-validation.schema.json`
+- `references/rule-id-migration-map.json`
 - `references/report-template.md`
 - `references/rationalizations-to-reject.md`
 
 Strict mode: missing required references => abort.
 
----
-
 ## Phase 1: Load Canonical Inputs
 
-Required for prod-grade synthesis:
+Required:
 - `findings.json`
 - `compliance.json`
 
-Optional:
-- `audit-context.json` (prior finding correlation)
+Optional but preferred:
+- `audit-context.json`
+- `tool-findings.json`
+- `tool-validation.json`
+- `gate-status.json`
 
-If both required inputs are missing => abort.
+Validation:
+- Validate every loaded JSON against schema.
+- Schema failure in required input => abort.
 
-Validate loaded inputs against their schemas.
-Schema failure => abort.
+Warning propagation:
+- Preserve upstream `warnings[]` from all loaded artifacts.
 
-Warning propagation rule:
-- `warnings[]` from upstream artifacts must be preserved in `audit-report.json`.
-
----
-
-## Phase 2: Normalize
+## Phase 2: Normalize Core Findings
 
 Normalize into canonical finding objects with required fields:
 - `finding_id`
@@ -78,10 +85,6 @@ Normalize into canonical finding objects with required fields:
 Canonical statuses only:
 - `NEW|RECURRING|REGRESSION|ACKNOWLEDGED|RESOLVED|INCOMPLETE`
 
-Do not introduce ad-hoc statuses.
-
----
-
 ## Phase 3: Merge + Dedup
 
 Merge vulnerability + compliance findings.
@@ -91,56 +94,53 @@ Dedup key:
 
 Rules:
 - Never dedup across different contracts.
-- Preserve cross-contract recurrence and report it in systemic section.
-- If merged from multiple sources, keep traceability metadata.
+- Preserve cross-contract recurrence in systemic section.
+- Keep traceability metadata.
 
----
+## Phase 4: Delta Analysis with Migration Support
 
-## Phase 4: Delta Analysis
-
-If prior findings available:
-- classify current findings as `NEW|RECURRING|REGRESSION|ACKNOWLEDGED`
-- classify historical unmatched findings as `RESOLVED`
+Delta match order:
+1. Exact canonical `rule_id` + location overlap.
+2. Alias mapping from `rule-id-migration-map.json`.
+3. Location overlap + similarity fallback.
 
 No prior findings:
-- current findings remain `NEW`.
+- Current findings default `NEW`.
 
----
+## Phase 5: Severity Calibration + Validation
 
-## Phase 5: Severity Calibration
-
-Apply deterministic calibration sequence:
-1. Cross-contract systemic amplification (reporting layer only, no merge).
+Calibration sequence:
+1. Cross-contract systemic amplification (reporting only).
 2. Hot-path sensitivity adjustments.
-3. Edge-case caps with explicit rationale.
+3. Edge-case caps with rationale.
 4. Mock caps (informational only).
 5. Documented-risk handling (`ACKNOWLEDGED` without silent downgrade).
 
-Any downgrade/dismissal must pass rationalization counter-check.
+Critical/High findings:
+- Require independent validation record.
+- `UNVERIFIED` in C/H path => `INCOMPLETE`.
 
----
+## Phase 6: Tool and Standards Summaries
 
-## Phase 6: Critical/High Validation
+Do not merge tool findings into canonical `findings[]`.
+Use summary-only policy:
+- `tool_coverage_summary` from `tool-findings.json` + `tool-validation.json`
+- `standards_coverage_summary` from `compliance.json` and `gate-status.json`
 
-Each Critical/High finding must have independent validation record:
-- `CONFIRMED|REJECTED|UNVERIFIED`
-- rationale
-- evidence span
-
-`UNVERIFIED` in Critical/High path => finding status `INCOMPLETE`.
-
----
+`WARN` semantics:
+- Non-blocking in summaries unless explicit blocker code exists in gate status.
+- Treat Mythril/Echidna adapter limitations as warning context unless explicit blocker status exists.
 
 ## Phase 7: Output
 
 Write canonical:
 - `{output_dir}/audit-report.json`
 
-Write render outputs:
+Write render:
 - `{output_dir}/audit-report.md`
 - `{output_dir}/action-items.md`
 
-Validate canonical report against `audit-report.schema.json`.
+Validate `audit-report.json` against schema.
 Schema failure => abort.
 
 Required report sections:
@@ -150,26 +150,22 @@ Required report sections:
 - findings by severity
 - systemic patterns
 - feature risk summary
-- trust assumptions
 - delta analysis
 - spec coverage
+- tool coverage summary
+- standards coverage summary
 - compiler version assessment
 - action items
-- validation summary for Critical/High
-
----
+- critical/high validation summary
 
 ## Error Handling
 
-- Missing required canonical input => abort.
-- Invalid status/ID taxonomy in upstream data => abort in strict mode.
-- Validation subprocess failure for Critical/High => mark `INCOMPLETE`.
-- No findings is valid if inputs support that outcome.
-
----
+- Missing required input => abort.
+- Invalid status/ID taxonomy in required input => abort in strict mode.
+- Missing optional tool artifacts => emit neutral summary object, not error.
 
 ## Anti-Patterns
 
-- Do not invent evidence.
-- Do not bypass Critical/High validation.
-- Do not remap taxonomy IDs to incompatible synthetic IDs.
+- Do not inject tool findings directly into canonical findings array.
+- Do not bypass C/H validation.
+- Do not treat WARN as BLOCKED without explicit blocker status.

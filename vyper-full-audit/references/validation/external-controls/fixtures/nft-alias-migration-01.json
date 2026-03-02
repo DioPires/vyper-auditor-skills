@@ -1,0 +1,15 @@
+{
+  "fixture_id": "nft-alias-migration-01",
+  "schema_pack_version": "v3.1.0",
+  "family": "NFT",
+  "scenario": "alias-migration",
+  "input": {
+    "previous_rule_id": "DEC-NFT-HOOKS",
+    "current_rule_id": "NFT-01",
+    "migration_map_required": true
+  },
+  "expected": {
+    "stable_delta_classification": true,
+    "false_new_resolved_churn": false
+  }
+}

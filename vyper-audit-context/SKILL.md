@@ -144,6 +144,7 @@ Write render:
 
 Validate JSON against `audit-context.schema.json`.
 Schema failure => abort.
+`meta.schema_pack_version` is required.
 
 Determinism requirement:
 - identical repo snapshot + args => identical canonical output except timestamps.

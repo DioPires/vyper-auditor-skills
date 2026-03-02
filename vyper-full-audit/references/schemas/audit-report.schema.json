@@ -15,16 +15,19 @@
     "spec_coverage",
     "compiler_assessment",
     "validation_summary",
+    "tool_coverage_summary",
+    "standards_coverage_summary",
     "action_items"
   ],
   "additionalProperties": false,
   "properties": {
     "meta": {
       "type": "object",
-      "required": ["generated_at", "scope"],
+      "required": ["generated_at", "schema_pack_version", "scope"],
       "additionalProperties": false,
       "properties": {
         "generated_at": {"type": "string"},
+        "schema_pack_version": {"type": "string", "minLength": 1},
         "scope": {"type": "string"},
         "versions": {"type": "array", "items": {"type": "string"}}
       }
@@ -34,8 +37,8 @@
       "required": ["prod_gate", "assurance_checks", "blocked_reasons"],
       "additionalProperties": false,
       "properties": {
-        "prod_gate": {"type": "string", "enum": ["PASS", "FAIL", "BLOCKED"]},
-        "assurance_checks": {"type": "string", "enum": ["PASS", "FAIL", "BLOCKED"]},
+        "prod_gate": {"type": "string", "enum": ["PASS", "BLOCKED"]},
+        "assurance_checks": {"type": "string", "enum": ["PASS", "BLOCKED"]},
         "blocked_reasons": {"type": "array", "items": {"type": "string"}}
       }
     },
@@ -145,6 +148,94 @@
         "confirmed": {"type": "integer", "minimum": 0},
         "rejected": {"type": "integer", "minimum": 0},
         "unverified": {"type": "integer", "minimum": 0}
+      }
+    },
+    "tool_coverage_summary": {
+      "type": "object",
+      "required": [
+        "mode",
+        "status",
+        "requested_tools",
+        "executed_tools",
+        "missing_tools",
+        "failed_tools",
+        "timed_out_tools",
+        "mapped_findings",
+        "unmapped_findings",
+        "severity_counts",
+        "critical_high_validation"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "mode": {"type": "string", "enum": ["required", "enabled", "disabled"]},
+        "status": {"type": "string", "enum": ["PASS", "WARN", "SKIPPED", "BLOCKED"]},
+        "requested_tools": {"type": "array", "items": {"type": "string", "enum": ["slither", "mythril", "echidna"]}},
+        "executed_tools": {"type": "array", "items": {"type": "string", "enum": ["slither", "mythril", "echidna"]}},
+        "missing_tools": {"type": "array", "items": {"type": "string", "enum": ["slither", "mythril", "echidna"]}},
+        "failed_tools": {"type": "array", "items": {"type": "string", "enum": ["slither", "mythril", "echidna"]}},
+        "timed_out_tools": {"type": "array", "items": {"type": "string", "enum": ["slither", "mythril", "echidna"]}},
+        "mapped_findings": {"type": "integer", "minimum": 0},
+        "unmapped_findings": {"type": "integer", "minimum": 0},
+        "severity_counts": {
+          "type": "object",
+          "required": ["critical", "high", "medium", "low", "informational"],
+          "additionalProperties": false,
+          "properties": {
+            "critical": {"type": "integer", "minimum": 0},
+            "high": {"type": "integer", "minimum": 0},
+            "medium": {"type": "integer", "minimum": 0},
+            "low": {"type": "integer", "minimum": 0},
+            "informational": {"type": "integer", "minimum": 0}
+          }
+        },
+        "critical_high_validation": {
+          "type": "object",
+          "required": ["total", "confirmed", "rejected", "unverified"],
+          "additionalProperties": false,
+          "properties": {
+            "total": {"type": "integer", "minimum": 0},
+            "confirmed": {"type": "integer", "minimum": 0},
+            "rejected": {"type": "integer", "minimum": 0},
+            "unverified": {"type": "integer", "minimum": 0}
+          }
+        }
+      }
+    },
+    "standards_coverage_summary": {
+      "type": "object",
+      "required": [
+        "standards_enforcement",
+        "profile",
+        "applies",
+        "status",
+        "required_packs",
+        "available_packs",
+        "missing_packs",
+        "control_counts"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "standards_enforcement": {"type": "string", "enum": ["shadow", "enforced"]},
+        "profile": {"type": "string"},
+        "applies": {"type": "boolean"},
+        "status": {"type": "string", "enum": ["PASS", "WARN", "SKIPPED", "BLOCKED"]},
+        "required_packs": {"type": "array", "items": {"type": "string"}},
+        "available_packs": {"type": "array", "items": {"type": "string"}},
+        "missing_packs": {"type": "array", "items": {"type": "string"}},
+        "blocked_reasons": {"type": "array", "items": {"type": "string"}},
+        "control_counts": {
+          "type": "object",
+          "required": ["total", "pass", "fail", "partial", "unverified", "unmapped"],
+          "additionalProperties": false,
+          "properties": {
+            "total": {"type": "integer", "minimum": 0},
+            "pass": {"type": "integer", "minimum": 0},
+            "fail": {"type": "integer", "minimum": 0},
+            "partial": {"type": "integer", "minimum": 0},
+            "unverified": {"type": "integer", "minimum": 0},
+            "unmapped": {"type": "integer", "minimum": 0}
+          }
+        }
       }
     },
     "action_items": {

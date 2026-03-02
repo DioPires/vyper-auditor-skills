@@ -1,0 +1,15 @@
+{
+  "fixture_id": "scsvs-alias-migration-01",
+  "schema_pack_version": "v3.1.0",
+  "family": "SCSVS",
+  "scenario": "alias-migration",
+  "input": {
+    "previous_rule_id": "SCSVS-INTEGRATIONS-1-LEGACY",
+    "current_rule_id": "SCSVS-I1",
+    "migration_map_required": true
+  },
+  "expected": {
+    "stable_delta_classification": true,
+    "false_new_resolved_churn": false
+  }
+}

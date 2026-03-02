@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0",
+  "version": "3.0.0",
   "scope": "Vyper >=0.4.0",
   "rules": [
     {
@@ -505,6 +505,150 @@
       "description": "Logic that assumes legacy full-delete selfdestruct behavior can fail under modern EVM semantics.",
       "remediation": "Avoid security-critical reliance on selfdestruct side effects; use explicit disable and withdraw flows.",
       "tags": ["evm-semantics", "lifecycle"]
+    },
+    {
+      "id": "TOK-01",
+      "name": "Non-standard Token Return Handling",
+      "severity": "High",
+      "scannable": true,
+      "trigger_regex": "transfer\\s*\\(|transferFrom\\s*\\(|approve\\s*\\(",
+      "applies_to_versions": ">=0.4.0",
+      "cwe": "CWE-252",
+      "description": "Token integration assumes ERC20-compliant bool return values without defensive handling.",
+      "remediation": "Use balance-delta checks or explicit default return handling for non-standard tokens.",
+      "tags": ["token-integration", "external-control", "tier1"]
+    },
+    {
+      "id": "TOK-02",
+      "name": "Fee-on-Transfer Accounting Drift",
+      "severity": "High",
+      "scannable": true,
+      "trigger_regex": "transferFrom\\s*\\(|transfer\\s*\\(",
+      "applies_to_versions": ">=0.4.0",
+      "cwe": "CWE-682",
+      "description": "Accounting credits requested transfer amount instead of actual balance delta.",
+      "remediation": "Use pre/post balance measurements for all token transfers.",
+      "tags": ["token-integration", "accounting", "external-control", "tier1"]
+    },
+    {
+      "id": "TOK-03",
+      "name": "Token Blocklist/Pause Assumption",
+      "severity": "Medium",
+      "scannable": false,
+      "trigger_regex": null,
+      "applies_to_versions": ">=0.4.0",
+      "cwe": "CWE-284",
+      "description": "Protocol assumes token transfer liveness even when token admin pause/blocklist exists.",
+      "remediation": "Document and enforce emergency exits under token transfer restrictions.",
+      "tags": ["token-integration", "liveness", "external-control", "tier1"]
+    },
+    {
+      "id": "ORC-01",
+      "name": "Oracle Staleness and Round Integrity",
+      "severity": "High",
+      "scannable": true,
+      "trigger_regex": "latestRoundData|updatedAt|answeredInRound",
+      "applies_to_versions": ">=0.4.0",
+      "cwe": "CWE-682",
+      "description": "Oracle inputs may be stale or malformed without freshness and round consistency checks.",
+      "remediation": "Validate staleness window, positivity, and round completeness before use.",
+      "tags": ["oracle", "external-control", "tier2-codify-required"]
+    },
+    {
+      "id": "RNG-01",
+      "name": "Randomness Callback Authorization Gap",
+      "severity": "High",
+      "scannable": false,
+      "trigger_regex": null,
+      "applies_to_versions": ">=0.4.0",
+      "cwe": "CWE-285",
+      "description": "Randomness fulfill callbacks may accept unauthorized callers or duplicate responses.",
+      "remediation": "Restrict callback caller and enforce one-time fulfillment state transitions.",
+      "tags": ["randomness", "callbacks", "external-control", "tier2-codify-required"]
+    },
+    {
+      "id": "CRT-01",
+      "name": "CREATE2/EXTCODESIZE Trust Assumption",
+      "severity": "Medium",
+      "scannable": true,
+      "trigger_regex": "create_minimal_proxy_to|raw_create|EXTCODESIZE|is_contract",
+      "applies_to_versions": ">=0.4.0",
+      "cwe": "CWE-20",
+      "description": "Runtime assumptions about address determinism or contract detection may be unsafe.",
+      "remediation": "Avoid EXTCODESIZE-only trust checks and validate deployment invariants explicitly.",
+      "tags": ["runtime-semantics", "external-control", "tier2-codify-required"]
+    },
+    {
+      "id": "XCH-01",
+      "name": "Cross-Chain Replay Protection Missing",
+      "severity": "Critical",
+      "scannable": false,
+      "trigger_regex": null,
+      "applies_to_versions": ">=0.4.0",
+      "cwe": "CWE-294",
+      "description": "Cross-domain message handling may permit replay across chains/domains.",
+      "remediation": "Bind nonces/messages to domain IDs and enforce one-time consumption.",
+      "tags": ["cross-chain", "external-control", "tier2-codify-required"]
+    },
+    {
+      "id": "AMM-01",
+      "name": "AMM Slippage Bound Missing",
+      "severity": "High",
+      "scannable": true,
+      "trigger_regex": "swap\\s*\\(|amountOutMin|min_out",
+      "applies_to_versions": ">=0.4.0",
+      "cwe": "CWE-347",
+      "description": "Swap paths may execute without deterministic slippage protections.",
+      "remediation": "Require caller-provided min-out and deadline checks.",
+      "tags": ["amm", "dex", "external-control", "tier2-codify-required"]
+    },
+    {
+      "id": "LND-01",
+      "name": "Lending Health Factor Enforcement Gap",
+      "severity": "High",
+      "scannable": false,
+      "trigger_regex": null,
+      "applies_to_versions": ">=0.4.0",
+      "cwe": "CWE-682",
+      "description": "Borrow/withdraw paths may not enforce post-operation health factor thresholds.",
+      "remediation": "Recompute and enforce health factor before committing state.",
+      "tags": ["lending", "risk-control", "external-control", "tier2-codify-required"]
+    },
+    {
+      "id": "NFT-01",
+      "name": "NFT Hook Reentrancy Boundary",
+      "severity": "Medium",
+      "scannable": false,
+      "trigger_regex": null,
+      "applies_to_versions": ">=0.4.0",
+      "cwe": "CWE-841",
+      "description": "NFT receiver hooks may re-enter protocol flows without guard or sequencing controls.",
+      "remediation": "Guard hook entrypoints and isolate settlement effects before external callbacks.",
+      "tags": ["nft", "callbacks", "external-control", "tier2-codify-required"]
+    },
+    {
+      "id": "STK-01",
+      "name": "Reward Index Drift in Staking Logic",
+      "severity": "Medium",
+      "scannable": false,
+      "trigger_regex": null,
+      "applies_to_versions": ">=0.4.0",
+      "cwe": "CWE-682",
+      "description": "Reward-per-share index or claim ordering may drift under repeated updates.",
+      "remediation": "Use monotonic index updates and bounded rounding policy.",
+      "tags": ["staking", "accounting", "external-control", "tier2-codify-required"]
+    },
+    {
+      "id": "SCSVS-I1",
+      "name": "Integration Control Coverage Gap",
+      "severity": "Medium",
+      "scannable": false,
+      "trigger_regex": null,
+      "applies_to_versions": ">=0.4.0",
+      "cwe": "CWE-693",
+      "description": "Integration controls required by SCSVS may be partially covered or undocumented.",
+      "remediation": "Map integration controls to explicit checks and require evidence in standards summary.",
+      "tags": ["scsvs", "standards", "external-control", "tier1"]
     }
   ]
 }

@@ -1,0 +1,36 @@
+{
+  "meta": {
+    "generated_at": "2026-03-02T13:10:00Z",
+    "schema_pack_version": "v3.1.0",
+    "profile": "full-evm",
+    "toolchain_mode": "required",
+    "tool_timeout_sec": 900,
+    "tool_fail_open": false,
+    "requested_tools": ["slither"]
+  },
+  "tool_availability": [
+    {
+      "tool": "slither",
+      "status": "MISSING",
+      "reason_code": "TOOLCHAIN:SLITHER_NOT_AVAILABLE",
+      "install_hint": "python3 -m pip install --user slither-analyzer",
+      "install_doc_ref": "references/tool-installation.md",
+      "details": "Binary not found on PATH"
+    }
+  ],
+  "execution_plan": [
+    {
+      "tool": "slither",
+      "will_run": false,
+      "reason": "missing"
+    }
+  ],
+  "warnings": [
+    {
+      "code": "TOOLCHAIN:SLITHER_NOT_AVAILABLE",
+      "level": "WARN",
+      "message": "Requested tool is missing from PATH.",
+      "source": "tool-discovery"
+    }
+  ]
+}

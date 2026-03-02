@@ -1,0 +1,186 @@
+{
+  "version": "1.1.0",
+  "generated_at": "2026-03-02T00:00:00Z",
+  "sources": [
+    {
+      "source_name": "awesome-audits-checklists",
+      "repo_url": "https://github.com/TradMod/awesome-audits-checklists",
+      "origin_url": "https://github.com/TradMod/awesome-audits-checklists",
+      "pin_quality": "IMMUTABLE",
+      "commit_sha": "ed7b7509f274a7a489bbe79e825b165729bbdecd",
+      "content_hash": "sha256:b22f748798e3f6519e1ca6ac93b21ef96b22f8a4e90c19904ca98f205ef65e1b",
+      "artifacts": [
+        {
+          "path": "https://raw.githubusercontent.com/TradMod/awesome-audits-checklists/ed7b7509f274a7a489bbe79e825b165729bbdecd/README.md",
+          "content_hash": "sha256:b22f748798e3f6519e1ca6ac93b21ef96b22f8a4e90c19904ca98f205ef65e1b"
+        }
+      ],
+      "retrieved_at": "2026-03-02T00:00:00Z",
+      "reviewed_at": "2026-03-02T00:00:00Z",
+      "reviewed_by": "vyper-auditor-skills-maintainers",
+      "license": "MIT",
+      "trust_tier": "TIER3",
+      "notes": "Discovery index only; never blocking by itself."
+    },
+    {
+      "source_name": "Cyfrin Audit Checklist",
+      "repo_url": "https://github.com/Cyfrin/audit-checklist",
+      "origin_url": "https://github.com/Cyfrin/audit-checklist",
+      "pin_quality": "IMMUTABLE",
+      "commit_sha": "008855fe1798bbe75d86e6bf5f5e284b91bb2de6",
+      "content_hash": "sha256:f33ad4227e866f97372b291eaa88951c52d72a241aca51da5ca3038680168cce",
+      "artifacts": [
+        {
+          "path": "https://raw.githubusercontent.com/Cyfrin/audit-checklist/008855fe1798bbe75d86e6bf5f5e284b91bb2de6/checklist.json",
+          "content_hash": "sha256:f33ad4227e866f97372b291eaa88951c52d72a241aca51da5ca3038680168cce"
+        }
+      ],
+      "retrieved_at": "2026-03-02T00:00:00Z",
+      "reviewed_at": "2026-03-02T00:00:00Z",
+      "reviewed_by": "vyper-auditor-skills-maintainers",
+      "license": "MIT",
+      "trust_tier": "TIER1",
+      "notes": "Structured controls; blocking-eligible only after internal codification gate."
+    },
+    {
+      "source_name": "SCSVS",
+      "repo_url": "https://github.com/ComposableSecurity/SCSVS",
+      "origin_url": "https://github.com/ComposableSecurity/SCSVS",
+      "pin_quality": "IMMUTABLE",
+      "commit_sha": "69d79b7cf7116dd93ef97e9993e912596fbf78e0",
+      "content_hash": "sha256:6ab3e36f59ff261230e833754e6fe7cb330553fb9266734a06cfc4f246f94993",
+      "artifacts": [
+        {
+          "path": "https://raw.githubusercontent.com/ComposableSecurity/SCSVS/69d79b7cf7116dd93ef97e9993e912596fbf78e0/README.md",
+          "content_hash": "sha256:6ab3e36f59ff261230e833754e6fe7cb330553fb9266734a06cfc4f246f94993"
+        }
+      ],
+      "retrieved_at": "2026-03-02T00:00:00Z",
+      "reviewed_at": "2026-03-02T00:00:00Z",
+      "reviewed_by": "vyper-auditor-skills-maintainers",
+      "license": "CC-BY-4.0",
+      "trust_tier": "TIER1",
+      "notes": "Control framework source for standards coverage summaries."
+    },
+    {
+      "source_name": "weird-erc20",
+      "repo_url": "https://github.com/d-xo/weird-erc20",
+      "origin_url": "https://github.com/d-xo/weird-erc20",
+      "pin_quality": "IMMUTABLE",
+      "commit_sha": "781c8f039c106eb2d5c6071046b0dbb2f72c9870",
+      "content_hash": "sha256:37b43fc9f22b955ee59f0d4b0083e431a3ca296be297c75456d1615e0691da1f",
+      "artifacts": [
+        {
+          "path": "https://raw.githubusercontent.com/d-xo/weird-erc20/781c8f039c106eb2d5c6071046b0dbb2f72c9870/readme.md",
+          "content_hash": "sha256:37b43fc9f22b955ee59f0d4b0083e431a3ca296be297c75456d1615e0691da1f"
+        }
+      ],
+      "retrieved_at": "2026-03-02T00:00:00Z",
+      "reviewed_at": "2026-03-02T00:00:00Z",
+      "reviewed_by": "vyper-auditor-skills-maintainers",
+      "license": "MIT",
+      "trust_tier": "TIER1",
+      "notes": "Token integration edge-case corpus."
+    },
+    {
+      "source_name": "Sigma Prime Oracle Guidance",
+      "repo_url": "https://blog.sigmaprime.io/oracles-and-pricing.html",
+      "origin_url": "https://blog.sigmaprime.io/oracles-and-pricing.html",
+      "pin_quality": "IMMUTABLE",
+      "commit_sha": "543c87e7b3742041",
+      "content_hash": "sha256:543c87e7b3742041e798d4957c0808f2fe69a96234eefaa30e95cb30e91cefeb",
+      "artifacts": [
+        {
+          "path": "https://blog.sigmaprime.io/oracles-and-pricing.html",
+          "content_hash": "sha256:543c87e7b3742041e798d4957c0808f2fe69a96234eefaa30e95cb30e91cefeb"
+        }
+      ],
+      "retrieved_at": "2026-03-02T00:00:00Z",
+      "reviewed_at": "2026-03-02T00:00:00Z",
+      "reviewed_by": "vyper-auditor-skills-maintainers",
+      "license": "Unknown",
+      "trust_tier": "TIER2",
+      "notes": "Snapshot-pinned web source; advisory-only until codified."
+    },
+    {
+      "source_name": "Chainlink VRF Security",
+      "repo_url": "https://docs.chain.link/vrf/v2/security",
+      "origin_url": "https://docs.chain.link/vrf/v2/security",
+      "pin_quality": "IMMUTABLE",
+      "commit_sha": "772aaf5d61be0d1c",
+      "content_hash": "sha256:772aaf5d61be0d1cfa9c29d298f24b8eed0cefad4ad2c5824cc544335795d9dd",
+      "artifacts": [
+        {
+          "path": "https://docs.chain.link/vrf/v2/security",
+          "content_hash": "sha256:772aaf5d61be0d1cfa9c29d298f24b8eed0cefad4ad2c5824cc544335795d9dd"
+        }
+      ],
+      "retrieved_at": "2026-03-02T00:00:00Z",
+      "reviewed_at": "2026-03-02T00:00:00Z",
+      "reviewed_by": "vyper-auditor-skills-maintainers",
+      "license": "Unknown",
+      "trust_tier": "TIER2",
+      "notes": "Snapshot-pinned web source; advisory-only until codified."
+    },
+    {
+      "source_name": "MixBytes CREATE2 Pitfalls",
+      "repo_url": "https://mixbytes.io/blog/pitfalls-of-using-cteate-cteate2-and-extcodesize-opcodes",
+      "origin_url": "https://mixbytes.io/blog/pitfalls-of-using-cteate-cteate2-and-extcodesize-opcodes",
+      "pin_quality": "IMMUTABLE",
+      "commit_sha": "93ad9914cd937daa",
+      "content_hash": "sha256:93ad9914cd937daa1fb9003a8a0cc8c570df0c4a49688315a9e5964360506521",
+      "artifacts": [
+        {
+          "path": "https://mixbytes.io/blog/pitfalls-of-using-cteate-cteate2-and-extcodesize-opcodes",
+          "content_hash": "sha256:93ad9914cd937daa1fb9003a8a0cc8c570df0c4a49688315a9e5964360506521"
+        }
+      ],
+      "retrieved_at": "2026-03-02T00:00:00Z",
+      "reviewed_at": "2026-03-02T00:00:00Z",
+      "reviewed_by": "vyper-auditor-skills-maintainers",
+      "license": "Unknown",
+      "trust_tier": "TIER2",
+      "notes": "Snapshot-pinned web source; upstream article slug includes a typo (cteate) and is preserved verbatim."
+    },
+    {
+      "source_name": "Interoperability Protocol Security Checklist",
+      "repo_url": "https://github.com/windhustler/Interoperability-Protocol-Security-Checklist",
+      "origin_url": "https://github.com/windhustler/Interoperability-Protocol-Security-Checklist",
+      "pin_quality": "IMMUTABLE",
+      "commit_sha": "f52c7860f0d57b3151f32d278957b1bfb6b003d4",
+      "content_hash": "sha256:28dc41c999b56e9c558c34477a1e144faec57d1e88eee103397987c989869906",
+      "artifacts": [
+        {
+          "path": "https://raw.githubusercontent.com/windhustler/Interoperability-Protocol-Security-Checklist/f52c7860f0d57b3151f32d278957b1bfb6b003d4/README.md",
+          "content_hash": "sha256:28dc41c999b56e9c558c34477a1e144faec57d1e88eee103397987c989869906"
+        }
+      ],
+      "retrieved_at": "2026-03-02T00:00:00Z",
+      "reviewed_at": "2026-03-02T00:00:00Z",
+      "reviewed_by": "vyper-auditor-skills-maintainers",
+      "license": "MIT",
+      "trust_tier": "TIER2",
+      "notes": "Checklist source; advisory-only until codification gate complete."
+    },
+    {
+      "source_name": "Decurity Audit Checklists",
+      "repo_url": "https://github.com/Decurity/audit-checklists",
+      "origin_url": "https://github.com/Decurity/audit-checklists",
+      "pin_quality": "IMMUTABLE",
+      "commit_sha": "1a6a12085d7d0749c12455b2dbac43a3c852dd13",
+      "content_hash": "sha256:8f5eef1459492e0da6ace4c9600efd9dd1c89d94dfde734f7ed5aec9658ebcc0",
+      "artifacts": [
+        {
+          "path": "https://raw.githubusercontent.com/Decurity/audit-checklists/1a6a12085d7d0749c12455b2dbac43a3c852dd13/README.md",
+          "content_hash": "sha256:8f5eef1459492e0da6ace4c9600efd9dd1c89d94dfde734f7ed5aec9658ebcc0"
+        }
+      ],
+      "retrieved_at": "2026-03-02T00:00:00Z",
+      "reviewed_at": "2026-03-02T00:00:00Z",
+      "reviewed_by": "vyper-auditor-skills-maintainers",
+      "license": "MIT",
+      "trust_tier": "TIER2",
+      "notes": "Checklist source; advisory-only until codification gate complete."
+    }
+  ]
+}

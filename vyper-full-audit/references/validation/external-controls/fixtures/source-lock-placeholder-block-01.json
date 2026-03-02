@@ -1,0 +1,17 @@
+{
+  "fixture_id": "source-lock-placeholder-block-01",
+  "schema_pack_version": "v3.1.0",
+  "scenario": "source-lock-placeholder-detection",
+  "input": {
+    "strict": true,
+    "mode": "prod-gate",
+    "source_lock_entry": {
+      "source_name": "example-source",
+      "pin_quality": "PLACEHOLDER"
+    }
+  },
+  "expected": {
+    "core_status": "BLOCKED",
+    "blocked_reason": "CORE:SOURCE_LOCK_PLACEHOLDER_PIN"
+  }
+}

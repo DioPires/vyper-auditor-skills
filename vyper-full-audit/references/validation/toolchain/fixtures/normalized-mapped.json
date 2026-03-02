@@ -1,0 +1,20 @@
+{
+  "fixture_id": "normalized-mapped",
+  "schema_pack_version": "v3.1.0",
+  "scenario": "normalization",
+  "input": {
+    "raw_findings": [
+      {
+        "tool": "slither",
+        "native_id": "slither-erc20-return",
+        "severity": "High",
+        "location": {"contract": "contracts/Vault.vy", "function": "deposit", "start_line": 42, "end_line": 46}
+      }
+    ]
+  },
+  "expected": {
+    "mapped": true,
+    "canonical_rule_id": "TOK-01",
+    "severity_normalized": "High"
+  }
+}

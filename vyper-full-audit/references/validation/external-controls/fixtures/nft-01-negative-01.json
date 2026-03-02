@@ -1,0 +1,31 @@
+{
+  "fixture_id": "nft-01-negative-01",
+  "schema_pack_version": "v3.1.0",
+  "family": "NFT",
+  "rule_id": "NFT-01",
+  "profile": "evm-nft",
+  "tier": "TIER2",
+  "blocking_eligible": false,
+  "case_type": "negative",
+  "input": {
+    "contracts": [
+      {
+        "path": "references/validation/external-controls/contracts/fixtures/nft-01_negative_01.vy",
+        "language": "vyper",
+        "snippet": "# synthetic fixture for NFT-01 (negative)"
+      }
+    ],
+    "assumptions": {
+      "vyper_scope_only": true,
+      "profile_selected": true
+    }
+  },
+  "expected": {
+    "finding_count": 0,
+    "rule_ids": [],
+    "primary_status": null,
+    "severity": null,
+    "blocking_candidate_count": 0,
+    "delta_classification": "UNMATCHED"
+  }
+}

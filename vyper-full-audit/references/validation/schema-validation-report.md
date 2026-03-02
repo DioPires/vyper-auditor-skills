@@ -3,41 +3,27 @@
 ## Checks
 
 1. JSON syntax validation for all schema files.
-2. JSON syntax validation for `vuln-rule-registry.json` and `vyper-advisory-catalog.json`.
+2. JSON syntax validation for canonical reference JSON files.
 3. Required contract fields presence checks:
 - `warnings[]` in gate-facing schemas.
-- `language_feature_usage[]` in audit-context schema.
+- `schema_pack_version` in canonical `meta` objects.
+- `tool_findings_summary`, `tool_coverage_summary`, `toolchain_status`, `standards_gate_status` contracts.
+- tool remediation fields in `toolchain-context.schema.json`.
+- source-lock pin integrity fields (`pin_quality`, `artifacts[]`).
+- assurance evidence provenance field `evidence_engines[]` in `assurance-checks.schema.json`.
 
 ## Result
 
 - Status: PASS
-- Date: 2026-03-01
-- JSON files parsed: 15/15
+- Date: 2026-03-02
+- JSON schema files parsed: PASS
 
-## Command Evidence
-
-```bash
-python3 - <<'PY'
-... json.loads() over schema and reference JSON files ...
-PY
-# output: PASS 15
-```
-
-```bash
-rg -n '"warnings"|language_feature_usage|feature_risk_summary|vyper-advisory-catalog' ...
-```
+## Contract Evidence
 
 Validated contracts:
-- `warnings[]` required in findings/report/gate schemas.
-- `language_feature_usage[]` required in audit-context schema.
-- advisory catalog schema present and parse-valid.
-
-```bash
-python3 - <<'PY'
-... assert required+properties contain warnings/language_feature_usage fields ...
-PY
-# findings-artifact.schema.json PASS
-# audit-report.schema.json PASS
-# gate-status.schema.json PASS
-# audit-context.schema.json PASS
-```
+- `findings-artifact.schema.json` requires `tool_findings_summary`.
+- `audit-report.schema.json` requires `tool_coverage_summary` and `standards_coverage_summary`.
+- `gate-status.schema.json` requires `toolchain_status`, `standards_gate_status`, and `critical_high_validation_summary`.
+- `compliance.schema.json` requires `standards_coverage_summary`.
+- `assurance-checks.schema.json` includes canonical `meta` with `schema_pack_version` and requires `evidence_engines`.
+- all canonical `meta` contracts require `schema_pack_version`.

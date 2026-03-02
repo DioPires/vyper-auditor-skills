@@ -1,0 +1,16 @@
+{
+  "fixture_id": "ch-unverified",
+  "schema_pack_version": "v3.1.0",
+  "scenario": "critical-high-validation",
+  "input": {
+    "findings": [
+      {"tool_finding_id": "TFD-22222222", "canonical_rule_id": "TOK-02", "severity": "High"}
+    ],
+    "validations": []
+  },
+  "expected": {
+    "critical_high_total": 1,
+    "unverified": 1,
+    "status": "BLOCKED"
+  }
+}

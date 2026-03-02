@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyper-auditor-skills/schemas/tool-validation.schema.json",
+  "title": "ToolValidation",
+  "type": "object",
+  "required": ["meta", "validations", "summary", "warnings"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["generated_at", "schema_pack_version", "validator"],
+      "additionalProperties": false,
+      "properties": {
+        "generated_at": {"type": "string"},
+        "schema_pack_version": {"type": "string", "minLength": 1},
+        "validator": {"type": "string", "minLength": 1}
+      }
+    },
+    "validations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["tool_finding_id", "canonical_rule_id", "severity", "assessment", "notes"],
+        "additionalProperties": false,
+        "properties": {
+          "tool_finding_id": {"type": "string", "pattern": "^TFD-[A-Fa-f0-9]{8,64}$"},
+          "canonical_rule_id": {"type": "string"},
+          "severity": {"type": "string", "enum": ["Critical", "High", "Medium", "Low", "Informational"]},
+          "assessment": {"type": "string", "enum": ["CONFIRMED", "REJECTED", "UNVERIFIED"]},
+          "notes": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["critical_high_total", "confirmed", "rejected", "unverified", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "critical_high_total": {"type": "integer", "minimum": 0},
+        "confirmed": {"type": "integer", "minimum": 0},
+        "rejected": {"type": "integer", "minimum": 0},
+        "unverified": {"type": "integer", "minimum": 0},
+        "status": {"type": "string", "enum": ["PASS", "WARN", "SKIPPED", "BLOCKED"]}
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "level", "message"],
+        "additionalProperties": false,
+        "properties": {
+          "code": {"type": "string", "minLength": 1},
+          "level": {"type": "string", "enum": ["INFO", "WARN"]},
+          "message": {"type": "string", "minLength": 1},
+          "source": {"type": "string"},
+          "context": {
+            "type": "object",
+            "additionalProperties": {
+              "type": ["string", "number", "boolean", "null"]
+            }
+          }
+        }
+      }
+    }
+  }
+}

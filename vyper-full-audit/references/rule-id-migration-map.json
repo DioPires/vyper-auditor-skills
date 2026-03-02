@@ -1,0 +1,91 @@
+{
+  "version": "1.1.0",
+  "generated_at": "2026-03-02T00:00:00Z",
+  "minimum_alias_retention_schema_versions": 2,
+  "migrations": [
+    {
+      "canonical_rule_id": "TOK-01",
+      "deprecated_rule_id": "CYF-201",
+      "introduced_in_schema_pack": "v3.0.0",
+      "remove_after_schema_pack": "v5.0.0",
+      "reason": "Canonical internal IDs supersede external checklist IDs."
+    },
+    {
+      "canonical_rule_id": "TOK-02",
+      "deprecated_rule_id": "CYF-202",
+      "introduced_in_schema_pack": "v3.0.0",
+      "remove_after_schema_pack": "v5.0.0",
+      "reason": "Canonical internal IDs supersede external checklist IDs."
+    },
+    {
+      "canonical_rule_id": "TOK-03",
+      "deprecated_rule_id": "CYF-203",
+      "introduced_in_schema_pack": "v3.0.0",
+      "remove_after_schema_pack": "v5.0.0",
+      "reason": "Canonical internal IDs supersede external checklist IDs."
+    },
+    {
+      "canonical_rule_id": "ORC-01",
+      "deprecated_rule_id": "CL-ORACLE-STALE",
+      "introduced_in_schema_pack": "v3.0.0",
+      "remove_after_schema_pack": "v5.0.0",
+      "reason": "Unify oracle controls under ORC family."
+    },
+    {
+      "canonical_rule_id": "RNG-01",
+      "deprecated_rule_id": "CL-RNG-CALLBACK",
+      "introduced_in_schema_pack": "v3.0.0",
+      "remove_after_schema_pack": "v5.0.0",
+      "reason": "Normalize randomness callback family IDs."
+    },
+    {
+      "canonical_rule_id": "CRT-01",
+      "deprecated_rule_id": "MB-CREATE2-EXTCODESIZE",
+      "introduced_in_schema_pack": "v3.0.0",
+      "remove_after_schema_pack": "v5.0.0",
+      "reason": "Normalize runtime semantics family IDs."
+    },
+    {
+      "canonical_rule_id": "XCH-01",
+      "deprecated_rule_id": "WNDH-XCHAIN-REPLAY",
+      "introduced_in_schema_pack": "v3.0.0",
+      "remove_after_schema_pack": "v5.0.0",
+      "reason": "Normalize cross-chain family IDs."
+    },
+    {
+      "canonical_rule_id": "AMM-01",
+      "deprecated_rule_id": "DEC-DEX-SLIPPAGE",
+      "introduced_in_schema_pack": "v3.0.0",
+      "remove_after_schema_pack": "v5.0.0",
+      "reason": "Normalize AMM slippage family IDs."
+    },
+    {
+      "canonical_rule_id": "LND-01",
+      "deprecated_rule_id": "DEC-LENDING-HF",
+      "introduced_in_schema_pack": "v3.0.0",
+      "remove_after_schema_pack": "v5.0.0",
+      "reason": "Normalize lending health-factor family IDs."
+    },
+    {
+      "canonical_rule_id": "NFT-01",
+      "deprecated_rule_id": "DEC-NFT-HOOKS",
+      "introduced_in_schema_pack": "v3.0.0",
+      "remove_after_schema_pack": "v5.0.0",
+      "reason": "Normalize NFT hook family IDs."
+    },
+    {
+      "canonical_rule_id": "STK-01",
+      "deprecated_rule_id": "DEC-STAKING-INDEX",
+      "introduced_in_schema_pack": "v3.0.0",
+      "remove_after_schema_pack": "v5.0.0",
+      "reason": "Normalize staking index family IDs."
+    },
+    {
+      "canonical_rule_id": "SCSVS-I1",
+      "deprecated_rule_id": "SCSVS-INTEGRATIONS-1-LEGACY",
+      "introduced_in_schema_pack": "v3.0.0",
+      "remove_after_schema_pack": "v5.0.0",
+      "reason": "Preserve historical SCSVS integration alias for delta stability."
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyper-auditor-skills/schemas/tool-findings.schema.json",
+  "title": "ToolFindings",
+  "type": "object",
+  "required": ["meta", "findings", "unmapped_findings", "suppressed_findings", "warnings", "summary"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["generated_at", "schema_pack_version", "profile", "tools_executed"],
+      "additionalProperties": false,
+      "properties": {
+        "generated_at": {"type": "string"},
+        "schema_pack_version": {"type": "string", "minLength": 1},
+        "profile": {"type": "string"},
+        "tools_executed": {
+          "type": "array",
+          "items": {"type": "string", "enum": ["slither", "mythril", "echidna"]}
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "tool_finding_id",
+          "tool",
+          "severity_raw",
+          "severity_normalized",
+          "status",
+          "mapped",
+          "location",
+          "evidence",
+          "recommendation"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "tool_finding_id": {"type": "string", "pattern": "^TFD-[A-Fa-f0-9]{8,64}$"},
+          "tool": {"type": "string", "enum": ["slither", "mythril", "echidna"]},
+          "canonical_rule_id": {"type": "string"},
+          "external_rule_id": {"type": "string"},
+          "severity_raw": {"type": "string", "minLength": 1},
+          "severity_normalized": {"type": "string", "enum": ["Critical", "High", "Medium", "Low", "Informational"]},
+          "status": {"type": "string", "enum": ["NEW", "RECURRING", "REGRESSION", "ACKNOWLEDGED", "RESOLVED", "INCOMPLETE"]},
+          "mapped": {"type": "boolean"},
+          "location": {
+            "type": "object",
+            "required": ["contract", "function", "span"],
+            "additionalProperties": false,
+            "properties": {
+              "contract": {"type": "string"},
+              "function": {"type": "string"},
+              "span": {
+                "type": "object",
+                "required": ["start_line", "end_line"],
+                "additionalProperties": false,
+                "properties": {
+                  "start_line": {"type": "integer", "minimum": 1},
+                  "end_line": {"type": "integer", "minimum": 1}
+                }
+              }
+            }
+          },
+          "evidence": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "recommendation": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "unmapped_findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["tool_finding_id", "tool", "severity_raw", "severity_normalized", "reason"],
+        "additionalProperties": false,
+        "properties": {
+          "tool_finding_id": {"type": "string", "pattern": "^TFD-[A-Fa-f0-9]{8,64}$"},
+          "tool": {"type": "string", "enum": ["slither", "mythril", "echidna"]},
+          "external_rule_id": {"type": "string"},
+          "severity_raw": {"type": "string", "minLength": 1},
+          "severity_normalized": {"type": "string", "enum": ["Critical", "High", "Medium", "Low", "Informational"]},
+          "reason": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "suppressed_findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["tool_finding_id", "canonical_rule_id", "suppressed_by", "reason"],
+        "additionalProperties": false,
+        "properties": {
+          "tool_finding_id": {"type": "string", "pattern": "^TFD-[A-Fa-f0-9]{8,64}$"},
+          "canonical_rule_id": {"type": "string"},
+          "suppressed_by": {"type": "string"},
+          "reason": {"type": "string"}
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "level", "message"],
+        "additionalProperties": false,
+        "properties": {
+          "code": {"type": "string", "minLength": 1},
+          "level": {"type": "string", "enum": ["INFO", "WARN"]},
+          "message": {"type": "string", "minLength": 1},
+          "source": {"type": "string"},
+          "context": {
+            "type": "object",
+            "additionalProperties": {
+              "type": ["string", "number", "boolean", "null"]
+            }
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total", "mapped", "unmapped", "severity_counts", "critical_high_validation", "blocking_candidate_count"],
+      "additionalProperties": false,
+      "properties": {
+        "total": {"type": "integer", "minimum": 0},
+        "mapped": {"type": "integer", "minimum": 0},
+        "unmapped": {"type": "integer", "minimum": 0},
+        "blocking_candidate_count": {"type": "integer", "minimum": 0},
+        "severity_counts": {
+          "type": "object",
+          "required": ["critical", "high", "medium", "low", "informational"],
+          "additionalProperties": false,
+          "properties": {
+            "critical": {"type": "integer", "minimum": 0},
+            "high": {"type": "integer", "minimum": 0},
+            "medium": {"type": "integer", "minimum": 0},
+            "low": {"type": "integer", "minimum": 0},
+            "informational": {"type": "integer", "minimum": 0}
+          }
+        },
+        "critical_high_validation": {
+          "type": "object",
+          "required": ["total", "confirmed", "rejected", "unverified"],
+          "additionalProperties": false,
+          "properties": {
+            "total": {"type": "integer", "minimum": 0},
+            "confirmed": {"type": "integer", "minimum": 0},
+            "rejected": {"type": "integer", "minimum": 0},
+            "unverified": {"type": "integer", "minimum": 0}
+          }
+        }
+      }
+    }
+  }
+}

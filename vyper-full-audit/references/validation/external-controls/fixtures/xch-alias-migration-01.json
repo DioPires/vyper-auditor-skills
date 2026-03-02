@@ -1,0 +1,15 @@
+{
+  "fixture_id": "xch-alias-migration-01",
+  "schema_pack_version": "v3.1.0",
+  "family": "XCH",
+  "scenario": "alias-migration",
+  "input": {
+    "previous_rule_id": "WNDH-XCHAIN-REPLAY",
+    "current_rule_id": "XCH-01",
+    "migration_map_required": true
+  },
+  "expected": {
+    "stable_delta_classification": true,
+    "false_new_resolved_churn": false
+  }
+}

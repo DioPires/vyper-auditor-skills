@@ -1,0 +1,52 @@
+{
+  "meta": {
+    "generated_at": "2026-03-02T13:00:00Z",
+    "schema_pack_version": "v3.1.0",
+    "profile": "generic",
+    "tools_executed": ["slither"]
+  },
+  "findings": [
+    {
+      "tool_finding_id": "TFD-a8f2c1d9",
+      "tool": "slither",
+      "canonical_rule_id": "TOK-01",
+      "external_rule_id": "slither-erc20-return",
+      "severity_raw": "High",
+      "severity_normalized": "High",
+      "status": "NEW",
+      "mapped": true,
+      "location": {
+        "contract": "contracts/Vault.vy",
+        "function": "deposit",
+        "span": {
+          "start_line": 42,
+          "end_line": 46
+        }
+      },
+      "evidence": ["transferFrom return value unchecked"],
+      "recommendation": "Validate call success using balance delta and return handling."
+    }
+  ],
+  "unmapped_findings": [],
+  "suppressed_findings": [],
+  "warnings": [],
+  "summary": {
+    "total": 1,
+    "mapped": 1,
+    "unmapped": 0,
+    "severity_counts": {
+      "critical": 0,
+      "high": 1,
+      "medium": 0,
+      "low": 0,
+      "informational": 0
+    },
+    "critical_high_validation": {
+      "total": 1,
+      "confirmed": 1,
+      "rejected": 0,
+      "unverified": 0
+    },
+    "blocking_candidate_count": 1
+  }
+}

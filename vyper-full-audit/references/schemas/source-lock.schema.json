@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyper-auditor-skills/schemas/source-lock.schema.json",
+  "title": "SourceLock",
+  "type": "object",
+  "required": ["version", "generated_at", "sources"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"type": "string"},
+    "generated_at": {"type": "string"},
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "source_name",
+          "repo_url",
+          "origin_url",
+          "pin_quality",
+          "commit_sha",
+          "content_hash",
+          "artifacts",
+          "retrieved_at",
+          "reviewed_at",
+          "reviewed_by",
+          "license",
+          "trust_tier",
+          "notes"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "source_name": {"type": "string", "minLength": 1},
+          "repo_url": {"type": "string", "pattern": "^https://[^\\s]+$"},
+          "origin_url": {"type": "string", "pattern": "^https://[^\\s]+$"},
+          "pin_quality": {"type": "string", "enum": ["IMMUTABLE", "PLACEHOLDER"]},
+          "commit_sha": {"type": "string", "pattern": "^[A-Fa-f0-9]{7,64}$"},
+          "content_hash": {"type": "string", "pattern": "^sha256:[A-Fa-f0-9]{64}$"},
+          "artifacts": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["path", "content_hash"],
+              "additionalProperties": false,
+              "properties": {
+                "path": {"type": "string", "minLength": 1},
+                "content_hash": {"type": "string", "pattern": "^sha256:[A-Fa-f0-9]{64}$"}
+              }
+            }
+          },
+          "retrieved_at": {"type": "string"},
+          "reviewed_at": {"type": "string"},
+          "reviewed_by": {"type": "string", "minLength": 1},
+          "license": {"type": "string", "minLength": 1},
+          "trust_tier": {"type": "string", "enum": ["TIER1", "TIER2", "TIER3"]},
+          "notes": {"type": "string"},
+          "placeholder_reason": {"type": "string", "minLength": 1}
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "pin_quality": {"const": "PLACEHOLDER"}
+              }
+            },
+            "then": {
+              "required": ["placeholder_reason"]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "pin_quality": {"const": "IMMUTABLE"}
+              }
+            },
+            "then": {
+              "properties": {
+                "commit_sha": {"pattern": "^[A-Fa-f0-9]{12,64}$"}
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

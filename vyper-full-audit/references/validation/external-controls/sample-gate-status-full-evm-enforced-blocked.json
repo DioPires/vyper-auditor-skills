@@ -1,0 +1,72 @@
+{
+  "prod_gate": "BLOCKED",
+  "assurance_checks": "PASS",
+  "blocked_reasons": [
+    "STANDARDS:MISSING_REQUIRED_PACK:evm-cross-chain-checklist.md"
+  ],
+  "warnings": [],
+  "critical_high_validation_summary": {
+    "total": 0,
+    "confirmed": 0,
+    "rejected": 0,
+    "unverified": 0
+  },
+  "toolchain_status": {
+    "mode": "enabled",
+    "status": "PASS",
+    "fail_open": false,
+    "requested_tools": ["slither"],
+    "executed_tools": ["slither"],
+    "missing_tools": [],
+    "failed_tools": [],
+    "timed_out_tools": [],
+    "blocked_reasons": [],
+    "critical_high_validation": {
+      "total": 0,
+      "confirmed": 0,
+      "rejected": 0,
+      "unverified": 0
+    }
+  },
+  "standards_gate_status": {
+    "standards_enforcement": "enforced",
+    "profile": "full-evm",
+    "status": "BLOCKED",
+    "required_packs": [
+      "evm-token-integration-checklist.md",
+      "evm-oracle-pricing-checklist.md",
+      "evm-runtime-checklist.md",
+      "evm-randomness-checklist.md",
+      "evm-cross-chain-checklist.md",
+      "evm-amm-checklist.md",
+      "evm-lending-checklist.md",
+      "evm-nft-checklist.md",
+      "evm-staking-checklist.md",
+      "defi-lending-checklist.md",
+      "erc4626-vault-checklist.md",
+      "p2p-lending-checklist.md"
+    ],
+    "available_packs": [
+      "evm-token-integration-checklist.md",
+      "evm-oracle-pricing-checklist.md",
+      "evm-runtime-checklist.md",
+      "evm-randomness-checklist.md",
+      "evm-amm-checklist.md",
+      "evm-lending-checklist.md",
+      "evm-nft-checklist.md",
+      "evm-staking-checklist.md",
+      "defi-lending-checklist.md",
+      "erc4626-vault-checklist.md",
+      "p2p-lending-checklist.md"
+    ],
+    "missing_packs": [
+      "evm-cross-chain-checklist.md"
+    ],
+    "blocked_reasons": [
+      "STANDARDS:MISSING_REQUIRED_PACK:evm-cross-chain-checklist.md"
+    ]
+  },
+  "artifact_paths": {
+    "gate_status": ".claude/audit-sessions/20260302-140000/gate-status.json"
+  }
+}

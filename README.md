@@ -1,19 +1,17 @@
-# vyper-auditor-skills (v2)
+# vyper-auditor-skills (v3)
 
-Generic security audit skills for Vyper `>=0.4.0` with mandatory production
-release gating.
+Mission-critical audit skills for Vyper `>=0.4.0` with deterministic production
+gating.
 
-This suite produces canonical JSON artifacts and render Markdown artifacts,
-blocks incomplete release evidence, and enforces hard assurance checks for
-fuzz/property/invariant testing.
+This suite emits canonical JSON artifacts, render-only Markdown outputs, and
+explicit gate outcomes across core, toolchain, and standards layers.
 
 ## Critical Positioning
 
 - Default behavior is release-gating, not exploratory reporting.
-- `PROD_GATE=PASS` means configured gate criteria passed.
-- `PROD_GATE=PASS` is **not** formal proof of exploit impossibility.
-- Mandatory companion controls:
-- fuzz/property/invariant checks
+- `PROD_GATE=PASS` means configured controls passed; it is not formal proof.
+- Mandatory companion controls remain:
+- fuzz/property/invariant testing
 - senior manual security review
 
 ## Installation
@@ -25,6 +23,8 @@ cd vyper-auditor-skills
 ```
 
 Creates symlinks in `~/.claude/skills/`.
+This does not install external binaries (Slither/Titanoboa/Foundry/Mythril/Echidna).
+Use [tool-installation.md](/Users/dpires/Documents/Personal/code/vyper-auditor-skills/vyper-full-audit/references/tool-installation.md) for deterministic tool setup.
 
 Uninstall:
 
@@ -37,10 +37,20 @@ Uninstall:
 | Skill | Command | Purpose |
 |---|---|---|
 | `vyper-full-audit` | `/vyper-full-audit` | Mandatory production gate orchestration |
-| `vyper-vuln-scan` | `/vyper-vuln-scan` | JSON-first vulnerability scanning |
-| `vyper-spec-compliance` | `/vyper-spec-compliance` | Requirement extraction and compliance verification |
-| `vyper-audit-context` | `/vyper-audit-context` | Deterministic inventory/trust/call/feature context |
+| `vyper-vuln-scan` | `/vyper-vuln-scan` | Deterministic vulnerability scan + tool summaries |
+| `vyper-spec-compliance` | `/vyper-spec-compliance` | Requirement extraction/compliance verification |
+| `vyper-audit-context` | `/vyper-audit-context` | Deterministic context/trust/call/feature map |
 | `vyper-audit-report` | `/vyper-audit-report` | Canonical report synthesis |
+| `vyper-slither-scan` | `/vyper-slither-scan` | Slither raw findings adapter (baseline) |
+| `vyper-mythril-scan` | `/vyper-mythril-scan` | Mythril compatibility adapter (optional, bytecode-oriented) |
+| `vyper-echidna-evidence` | `/vyper-echidna-evidence` | Echidna compatibility adapter (optional, harness-oriented) |
+| `vyper-tool-findings-normalizer` | `/vyper-tool-findings-normalizer` | Tool findings normalization/validation |
+
+## Scope Contract
+
+- Source-language scope remains Vyper only.
+- Non-Vyper files in target scope are gate blockers.
+- EVM profiles evaluate Vyper-visible integration/runtime assumptions only; they do not expand source-language scope.
 
 ## Argument Grammar
 
@@ -55,95 +65,106 @@ Examples:
 - `contracts_dir=contracts,src`
 - `specs_dir=specs,docs/specs`
 - `exclude=contracts/mocks,legacy`
+- `tools=slither`
 
 ## Profiles
 
-`profile` controls optional domain packs:
+`profile` controls optional packs:
 - `generic` (default)
 - `defi-lending`
 - `erc4626`
 - `p2p`
+- `full-evm`
+- `evm-amm`
+- `evm-lending`
+- `evm-nft`
+- `evm-staking`
+- `evm-cross-chain`
+- `evm-oracle`
+- `evm-token-integration`
+- `evm-runtime`
+- `evm-randomness`
 
-In strict mode, selecting a profile requires its checklist pack.
+Strict mode:
+- missing required selected pack => blocked
+- non-selected pack missing => non-blocking
 
-## Full Audit (Mandatory Prod Gate)
+## Toolchain API
 
-`vyper-full-audit` defaults to:
-- `mode=prod-gate`
-- `strict=true`
-- `profile=generic`
+Supported args in full-audit and vuln-scan:
+- `toolchain=required|enabled|disabled` (default `enabled`)
+- `tools=<csv_tools>` where each is `slither|mythril|echidna` (default `slither`)
+- `tool_timeout_sec=<int>` (default `900`)
+- `tool_fail_open=true|false` (default `false`)
+- `standards_enforcement=shadow|enforced`
+- `execution_model=single-threaded|fanout` (default `single-threaded`)
 
-Example:
+Vyper-first policy:
+- Baseline scanner: `slither`.
+- Production recommendation for pure Vyper repos: `toolchain=required tools=slither`.
+- `mythril` and `echidna` are optional compatibility adapters; they are not required for pure-source Vyper profiles.
+- Assurance evidence is expected from Vyper-native test stacks (`boa+pytest`, optional `foundry`), with Echidna accepted only when harness-backed and reproducible.
 
-```text
-/vyper-full-audit contracts_dir=contracts,src specs_dir=specs,docs/specs profile=generic strict=true
-```
+Defaults:
+- `profile=full-evm` + omitted `standards_enforcement` => `shadow`
+- all other profiles => `enforced`
+- rollout note: `full-evm` defaults to `shadow` for first release cycle (R1) before mandatory enforcement.
 
-Expected release signal:
-- `PROD_GATE=PASS|BLOCKED`
-- `ASSURANCE_CHECKS=PASS|FAIL|BLOCKED`
+Hard rules:
+- `toolchain=required` forbids `tool_fail_open=true`
+- `toolchain=disabled` rejects non-empty `tools`
 
-### Required-vs-Optional (Prod Gate)
+Tool remediation contract:
+- If a tool is `MISSING|ERROR|TIMEOUT`, `toolchain-context.json.tool_availability[]` includes:
+  - `reason_code` (`TOOLCHAIN:*`)
+  - `install_hint`
+  - `install_doc_ref`
 
-Required:
-- valid Vyper contract discovery (`>=0.4.0`)
-- rule registry + language edges + suppression matrix
-- advisory catalog + advisory catalog schema
-- schema set for canonical artifacts
-- vulnerability scan completion
-- spec compliance completion
-- assurance checks `PASS`
-- Critical/High validation completion
+## Execution Model Contract
 
-Optional:
-- prior audit history
-- non-selected profile packs
+- `single-threaded`: one orchestrator flow, sequential phase execution.
+- `fanout`: phase-bounded parallel agents are allowed for context, vuln/tool, and compliance/report prep.
 
-Any required item missing/failing/incomplete => `PROD_GATE=BLOCKED`.
+Hard constraints in `fanout`:
+- Agents are phase-scoped only; no freeform cross-phase autonomy.
+- Inter-agent handoff is artifact-only (`audit-context.json`, `findings.json`, `compliance.json`, `tool*.json`), not chat memory.
+- Only top-level full-audit reducer computes final `PROD_GATE`.
+- Sub-agents cannot emit final gate decisions.
 
-## Advisory Freshness Policy
+Operational guidance:
+- Use `execution_model=fanout` for large repos/context pressure.
+- Keep `execution_model=single-threaded` for minimal/debug runs.
 
-Compiler advisory mapping is sourced from:
-- `vyper-full-audit/references/vyper-advisory-catalog.json`
+## Deterministic Gate Function
 
-Policy:
-- Missing/invalid advisory catalog under strict mode => blocked.
-- Stale catalog (older than `last_reviewed_at + stale_after_days`) => warning only.
-- Freshness warning never blocks release by itself.
+Intermediate statuses:
+- `core_status`: `PASS|BLOCKED`
+- `toolchain_status`: `PASS|WARN|SKIPPED|BLOCKED`
+- `standards_gate_status`: `PASS|WARN|SKIPPED|BLOCKED`
 
-## Assurance Checks (Hard Gate)
+Blocking set:
+- `BLOCKED` only
 
-Full audit validates fuzz/property/invariant assurance quality, not file presence.
+Non-blocking set:
+- `PASS|WARN|SKIPPED`
 
-PASS requires all:
-- suite presence
-- core invariant coverage
-- execution evidence
-- no unresolved failing seeds/counterexamples
-- non-trivial scenario depth
-- feature-conditional evidence based on
-`audit-context.json.language_feature_usage[]`
+Final gate:
+1. if `core_status=BLOCKED` => `PROD_GATE=BLOCKED`
+2. else if `toolchain_status=BLOCKED` => `PROD_GATE=BLOCKED`
+3. else if `standards_gate_status=BLOCKED` => `PROD_GATE=BLOCKED`
+4. else => `PROD_GATE=PASS`
 
-Feature-conditional rule:
-- if risky feature exists in codebase, targeted property/invariant evidence for that
-feature family is mandatory for assurance PASS.
+Gate-facing enums:
+- `prod_gate`: `PASS|BLOCKED`
+- `assurance_checks`: `PASS|BLOCKED`
 
-Anything else => `ASSURANCE_CHECKS` not PASS and prod gate blocked.
+`WARN` policy:
+- warning-only signals (including stale advisory and fail-open tool warnings) are non-blocking by themselves.
 
-## Coverage Matrix
-
-Current generic Vyper taxonomy:
-- `VYP-01..VYP-20`: application-layer risks
-- `VYP-21..VYP-30`: Vyper 0.4.x language hazards
-- `VYP-31..VYP-37`: compiler CVE mapping
-- `VYP-38..VYP-42`: proactive feature-risk checks
-
-New proactive checks:
-- `VYP-38`: `skip_contract_check` misuse
-- `VYP-39`: unchecked contract-creation return
-- `VYP-40`: `create_copy_of` target integrity risk
-- `VYP-41`: `@raw_return` ABI boundary hazard
-- `VYP-42`: `selfdestruct` semantic assumption risk
+`blocked_reasons[]` namespace:
+- `CORE:*`
+- `TOOLCHAIN:*`
+- `STANDARDS:*`
 
 ## Canonical Output Contract
 
@@ -151,8 +172,11 @@ Canonical JSON artifacts:
 - `audit-context.json`
 - `findings.json`
 - `compliance.json`
-- `audit-report.json`
 - `assurance-checks.json`
+- `toolchain-context.json`
+- `tool-findings.json`
+- `tool-validation.json`
+- `audit-report.json`
 - `gate-status.json`
 
 Render Markdown artifacts:
@@ -163,168 +187,77 @@ Render Markdown artifacts:
 - `action-items.md`
 - `gate-summary.md`
 
-Canonical JSON is source of truth. Markdown is render-only.
+Required meta field:
+- Every canonical artifact meta includes `schema_pack_version`.
 
-### Required JSON fields for warning and feature propagation
+## Canonical ID Policy
 
-- `findings.json`: required `warnings[]`
-- `audit-report.json`: required `warnings[]` and `feature_risk_summary[]`
-- `gate-status.json`: required `warnings[]`
-- `audit-context.json`: required `language_feature_usage[]`
+- Internal `rule_id` values are canonical.
+- External source IDs are aliases/provenance only.
+- Alias migration map is mandatory for delta matching before similarity fallback.
+- Deprecated aliases retained for minimum 2 schema pack versions.
 
-## Finding and Status Taxonomy
+## Source Trust Policy
 
-Finding identity:
-- `rule_id`: taxonomy ID (for example `VYP-31`, `E46-05`, `SPEC-042`)
-- `finding_id`: deterministic instance ID (`FND-<hash>`)
+- Tier1 structured sources: blocking-eligible after codification.
+- Tier2 research/blog sources: non-blocking until codification gate complete.
+- Tier3 social/video/index sources: never blocking.
 
-Canonical statuses:
-- `NEW|RECURRING|REGRESSION|ACKNOWLEDGED|RESOLVED|INCOMPLETE`
+Codification gate before blocking:
+1. internal canonical rule ID assigned
+2. mapping entry added
+3. suppression entries added
+4. anti-rationalization coverage added
+5. fixture minimums passed
+6. determinism and schema checks passed
 
-## Schema Stability
-
-Schemas are in `vyper-full-audit/references/schemas/`.
-
-Policy:
-- backward compatibility from v1 intentionally broken
-- schema updates versioned by repository history
-- every canonical artifact must validate against schema
+Source-lock integrity policy:
+- `source-lock.json` entries use immutable commit/hash snapshots (`pin_quality=IMMUTABLE`).
+- `pin_quality=PLACEHOLDER` is forbidden in strict/prod-gate.
+- `external-control-map.json.entries[].source_name` must match `source-lock.json.sources[].source_name`.
+- URLs in source lock/map must be HTTPS and validated.
 
 ## Validation and Sign-off Protocol
 
 ### Layer 1: Schema Integrity
-Checks:
-1. every updated schema parses
-2. cross-schema refs resolve
-3. representative fixtures validate including `warnings[]` and `language_feature_usage[]`
-Pass:
-- 100% schema parse + fixture validation pass
+- All schemas parse and refs resolve.
+- Representative artifacts validate.
 
-### Layer 2: Rule Contract (`VYP-38..VYP-42`)
-Checks:
-1. min 2 positive and 2 negative fixtures per new rule
-2. positive fixture emits expected `rule_id`, deterministic `finding_id`, severity
-3. negative fixture emits zero findings for that rule
-Pass:
-- 100% expected/actual alignment
+### Layer 2: Rule Contract
+- New blocking rules require at least 2 positive + 2 negative fixtures.
 
 ### Layer 3: Semantic Precision
-Checks:
-1. each emitted finding has semantic evidence beyond regex
-2. validator notes include exact unsafe condition + mitigation analysis
-3. rejected candidates cross-checked against rationalization rules
-Pass:
-- no grep-only confirmations
+- Findings require semantic proof; no grep-only confirmations.
 
 ### Layer 4: Dedup + Correlation
-Checks:
-1. same rule across different contracts remains separate
-2. true duplicates in same contract coalesce once
-3. systemic rollup does not mutate finding identity
-Pass:
-- dedup key behavior matches policy
+- Dedup behavior must match policy.
+- Alias migration matching required before fallback similarity.
 
 ### Layer 5: Gate Logic
-Required scenarios:
-- missing advisory catalog in strict mode => `BLOCKED`
-- stale advisory catalog => warning present, no standalone block
-- unverified new High => `BLOCKED`
-- only new Medium validated + assurance PASS => may PASS
-- feature present + no targeted assurance evidence => blocked via assurance
-Pass:
-- 100% scenario outcomes match expected statuses
+- Gate matrix must match deterministic precedence and warning policy.
 
 ### Layer 6: Determinism
-Checks:
-1. same input run twice
-2. canonical outputs equal except timestamp fields
-3. `finding_id` stable for unchanged findings
-Pass:
-- normalized byte-equivalent output
+- Same inputs produce identical canonical outputs except timestamps.
 
 ### Layer 7: Documentation Drift
-Checks:
-1. README command examples match `key=value` grammar
-2. README artifact list matches schema-required contract
-3. README blocking semantics match skill contracts
-Pass:
-- doc acceptance checks pass
+- README/skill examples align with key-value grammar and schema contracts.
 
 ## Required Validation Artifacts Before Sign-off
 
-1. fixture manifest (`VYP-38..VYP-42` expected outcomes)
-2. schema validation report
-3. gate scenario matrix report (expected vs actual)
-4. determinism diff report
-5. documentation acceptance report
-6. sample `gate-status.json` with warnings propagation
+- schema validation report
+- gate scenario matrix report
+- determinism diff report
+- documentation acceptance report
+- toolchain validation corpus
+- external-controls validation corpus
+- sample gate-status artifacts including toolchain/standards statuses
 
-## Breaking Changes and Migration
+## Migration Notes (v2 -> v3)
 
-### v1 -> v2 Summary
-
-- focus: lending-first -> generic default with optional profiles
-- outputs: markdown-only -> JSON canonical + markdown render
-- IDs: local labels -> `rule_id` + deterministic `finding_id`
-- statuses: normalized canonical enum
-- full audit: best-effort -> mandatory prod-gate blocking semantics
-
-### Additional v2.1 migration notes
-
-- JSON consumers must parse required `warnings[]` fields.
-- Audit context consumers must parse required `language_feature_usage[]`.
-- Report consumers must parse `feature_risk_summary[]`.
-
-### Operational Migration Checklist
-
-1. switch downstream tooling to canonical JSON artifacts
-2. update parsers for `rule_id`/`finding_id`
-3. enforce `PROD_GATE` and `ASSURANCE_CHECKS` in release workflows
-4. provide/auto-discover spec roots for prod runs
-5. persist fuzz/property/invariant execution evidence
-6. update consumers for `warnings[]` and feature usage data
-
-## Troubleshooting
-
-`PROD_GATE=BLOCKED` common causes:
-- missing required references/schemas
-- missing/invalid advisory catalog in strict mode
-- missing or invalid specs in prod-gate mode
-- version policy failure (`<0.4.0` or unparsable pragma)
-- `INCOMPLETE` in Critical/High path
-- assurance checks not PASS
-
-Remediation pattern:
-1. inspect `gate-status.json` `blocked_reasons`
-2. inspect `warnings[]` for non-blocking but critical follow-up
-3. fix highest-priority blocker first
-4. rerun full audit with same args
-5. confirm deterministic artifact validity
-
-## Known Limits
-
-- Not a substitute for deep manual reasoning in novel protocol architectures.
-- Not a formal verification proof system.
-- Requires teams to maintain meaningful assurance test suites.
-
-## Repository Layout
-
-```text
-vyper-auditor-skills/
-├── vyper-full-audit/
-│   ├── SKILL.md
-│   └── references/
-│       ├── schemas/
-│       ├── vuln-rule-registry.json
-│       ├── vyper-advisory-catalog.json
-│       ├── suppression-matrix.md
-│       └── ...
-├── vyper-vuln-scan/
-├── vyper-spec-compliance/
-├── vyper-audit-context/
-└── vyper-audit-report/
-```
-
-## License
-
-MIT
+- Adds toolchain canonical artifacts and summary fields.
+- Adds standards coverage summaries and profile expansion.
+- Normalizes gate-facing status enums to `PASS|BLOCKED` (legacy `FAIL` no longer emitted).
+- Enforces strict source-lock integrity (`pin_quality=PLACEHOLDER` blocks strict/prod-gate).
+- Adds deterministic tool remediation metadata (`reason_code`, `install_hint`, `install_doc_ref`).
+- Keeps Vyper-only source scope unchanged.
+- Keeps warning semantics non-blocking unless escalated to explicit blocker.

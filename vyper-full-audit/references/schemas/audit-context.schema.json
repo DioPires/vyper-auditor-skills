@@ -8,10 +8,11 @@
   "properties": {
     "meta": {
       "type": "object",
-      "required": ["generated_at", "project_root"],
+      "required": ["generated_at", "schema_pack_version", "project_root"],
       "additionalProperties": false,
       "properties": {
         "generated_at": {"type": "string"},
+        "schema_pack_version": {"type": "string", "minLength": 1},
         "project_root": {"type": "string"},
         "contracts_roots": {"type": "array", "items": {"type": "string"}},
         "specs_roots": {"type": "array", "items": {"type": "string"}}

@@ -1,0 +1,15 @@
+{
+  "fixture_id": "orc-alias-migration-01",
+  "schema_pack_version": "v3.1.0",
+  "family": "ORC",
+  "scenario": "alias-migration",
+  "input": {
+    "previous_rule_id": "CL-ORACLE-STALE",
+    "current_rule_id": "ORC-01",
+    "migration_map_required": true
+  },
+  "expected": {
+    "stable_delta_classification": true,
+    "false_new_resolved_churn": false
+  }
+}

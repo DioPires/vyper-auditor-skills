@@ -1,0 +1,18 @@
+{
+  "fixture_id": "ch-validated",
+  "schema_pack_version": "v3.1.0",
+  "scenario": "critical-high-validation",
+  "input": {
+    "findings": [
+      {"tool_finding_id": "TFD-11111111", "canonical_rule_id": "TOK-01", "severity": "High"}
+    ],
+    "validations": [
+      {"tool_finding_id": "TFD-11111111", "assessment": "CONFIRMED"}
+    ]
+  },
+  "expected": {
+    "critical_high_total": 1,
+    "unverified": 0,
+    "status": "PASS"
+  }
+}

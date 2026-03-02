@@ -9,16 +9,18 @@
     "warnings",
     "findings",
     "suppressed_candidates",
-    "systemic_patterns"
+    "systemic_patterns",
+    "tool_findings_summary"
   ],
   "additionalProperties": false,
   "properties": {
     "meta": {
       "type": "object",
-      "required": ["generated_at", "profile", "contracts_scanned"],
+      "required": ["generated_at", "schema_pack_version", "profile", "contracts_scanned"],
       "additionalProperties": false,
       "properties": {
         "generated_at": {"type": "string", "minLength": 1},
+        "schema_pack_version": {"type": "string", "minLength": 1},
         "profile": {"type": "string"},
         "contracts_scanned": {
           "type": "object",
@@ -135,6 +137,54 @@
           "contracts": {"type": "array", "items": {"type": "string"}},
           "related_rule_ids": {"type": "array", "items": {"type": "string"}},
           "notes": {"type": "string"}
+        }
+      }
+    },
+    "tool_findings_summary": {
+      "type": "object",
+      "required": [
+        "mode",
+        "status",
+        "requested_tools",
+        "executed_tools",
+        "missing_tools",
+        "failed_tools",
+        "timed_out_tools",
+        "severity_counts",
+        "critical_high_validation"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "mode": {"type": "string", "enum": ["required", "enabled", "disabled"]},
+        "status": {"type": "string", "enum": ["PASS", "WARN", "SKIPPED", "BLOCKED"]},
+        "requested_tools": {"type": "array", "items": {"type": "string", "enum": ["slither", "mythril", "echidna"]}},
+        "executed_tools": {"type": "array", "items": {"type": "string", "enum": ["slither", "mythril", "echidna"]}},
+        "missing_tools": {"type": "array", "items": {"type": "string", "enum": ["slither", "mythril", "echidna"]}},
+        "failed_tools": {"type": "array", "items": {"type": "string", "enum": ["slither", "mythril", "echidna"]}},
+        "timed_out_tools": {"type": "array", "items": {"type": "string", "enum": ["slither", "mythril", "echidna"]}},
+        "blocked_reasons": {"type": "array", "items": {"type": "string"}},
+        "severity_counts": {
+          "type": "object",
+          "required": ["critical", "high", "medium", "low", "informational"],
+          "additionalProperties": false,
+          "properties": {
+            "critical": {"type": "integer", "minimum": 0},
+            "high": {"type": "integer", "minimum": 0},
+            "medium": {"type": "integer", "minimum": 0},
+            "low": {"type": "integer", "minimum": 0},
+            "informational": {"type": "integer", "minimum": 0}
+          }
+        },
+        "critical_high_validation": {
+          "type": "object",
+          "required": ["total", "confirmed", "rejected", "unverified"],
+          "additionalProperties": false,
+          "properties": {
+            "total": {"type": "integer", "minimum": 0},
+            "confirmed": {"type": "integer", "minimum": 0},
+            "rejected": {"type": "integer", "minimum": 0},
+            "unverified": {"type": "integer", "minimum": 0}
+          }
         }
       }
     }

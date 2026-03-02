@@ -173,3 +173,73 @@ payloads incorrectly, causing authorization/accounting side effects in dependent
 must not rely on legacy full-delete behavior.
 
 **Instead**: Use explicit kill-state flags and withdrawal/disable flows independent of selfdestruct.
+
+---
+
+## 14. "It's only a Tier2 source, so we can ignore it"
+
+**Rationalization**: Research/blog controls are non-blocking, so they do not matter.
+
+**Rejected because**: Tier2 sources are non-blocking only until codified. They still require triage,
+coverage tracking, and explicit action items; otherwise the same blind spots persist release to release.
+
+**Instead**: Record Tier2-derived findings as advisory with explicit codification backlog status.
+
+## 15. "Alias IDs are enough for delta tracking"
+
+**Rationalization**: If rule IDs changed, we can treat old/new findings as unrelated.
+
+**Rejected because**: That creates false `NEW`/`RESOLVED` churn and breaks regression signal.
+
+**Instead**: Use `rule-id-migration-map.json` alias matching before location similarity fallback.
+
+## 16. "WARN should block in mission-critical mode"
+
+**Rationalization**: Any warning should fail closed.
+
+**Rejected because**: This conflicts with explicit policy that stale advisory and fail-open execution warnings are non-blocking.
+Conflating WARN with BLOCKED makes gate outcomes unstable and undermines deterministic severity semantics.
+
+**Instead**: Keep WARN non-blocking; encode true blockers as `BLOCKED` with namespaced reason codes.
+
+## Addendum: External-Control Family Dismissal Anti-Patterns
+
+### 17. "TOK findings are redundant because token is well-known"
+
+**Rejected because**: token return-shape, fee, and admin-control edge cases still apply to widely used tokens.
+
+### 18. "Oracle warning is advisory so we can ignore ORC-01"
+
+**Rejected because**: advisory does not mean optional; ORC findings must still be triaged and tracked with explicit action items.
+
+### 19. "RNG callback checks are handled upstream"
+
+**Rejected because**: callback caller authorization and one-time fulfillment are local contract responsibilities.
+
+### 20. "CREATE2 assumptions are harmless implementation details"
+
+**Rejected because**: address-derivation and contract-detection assumptions can become direct trust-boundary failures.
+
+### 21. "Cross-chain replay cannot happen on our deployment"
+
+**Rejected because**: replay resistance must be encoded in message/domain checks, not inferred from deployment intent.
+
+### 22. "AMM slippage is a UI concern"
+
+**Rejected because**: min-out and deadline checks are protocol safety controls, not merely UX controls.
+
+### 23. "Health-factor checks are covered by liquidation bots"
+
+**Rejected because**: liquidation bots are external assumptions; LND-01 requires on-chain enforcement.
+
+### 24. "NFT hook issues are edge-case only"
+
+**Rejected because**: callback boundaries are reentrancy boundaries and need explicit guards.
+
+### 25. "Staking index drift is negligible rounding noise"
+
+**Rejected because**: small rounding drifts compound in long-lived systems and can become user-loss events.
+
+### 26. "SCSVS gaps are documentation-only"
+
+**Rejected because**: missing standards evidence hides unresolved integration risk and weakens release assurance.

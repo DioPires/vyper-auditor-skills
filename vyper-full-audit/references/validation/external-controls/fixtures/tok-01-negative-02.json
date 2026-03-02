@@ -1,0 +1,31 @@
+{
+  "fixture_id": "tok-01-negative-02",
+  "schema_pack_version": "v3.1.0",
+  "family": "TOK",
+  "rule_id": "TOK-01",
+  "profile": "evm-token-integration",
+  "tier": "TIER1",
+  "blocking_eligible": true,
+  "case_type": "negative",
+  "input": {
+    "contracts": [
+      {
+        "path": "references/validation/external-controls/contracts/fixtures/tok-01_negative_02.vy",
+        "language": "vyper",
+        "snippet": "# synthetic fixture for TOK-01 (negative)"
+      }
+    ],
+    "assumptions": {
+      "vyper_scope_only": true,
+      "profile_selected": true
+    }
+  },
+  "expected": {
+    "finding_count": 0,
+    "rule_ids": [],
+    "primary_status": null,
+    "severity": null,
+    "blocking_candidate_count": 0,
+    "delta_classification": "UNMATCHED"
+  }
+}

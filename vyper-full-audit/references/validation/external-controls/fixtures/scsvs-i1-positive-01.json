@@ -1,0 +1,33 @@
+{
+  "fixture_id": "scsvs-i1-positive-01",
+  "schema_pack_version": "v3.1.0",
+  "family": "SCSVS",
+  "rule_id": "SCSVS-I1",
+  "profile": "full-evm",
+  "tier": "TIER1",
+  "blocking_eligible": true,
+  "case_type": "positive",
+  "input": {
+    "contracts": [
+      {
+        "path": "references/validation/external-controls/contracts/fixtures/scsvs-i1_positive_01.vy",
+        "language": "vyper",
+        "snippet": "# synthetic fixture for SCSVS-I1 (positive)"
+      }
+    ],
+    "assumptions": {
+      "vyper_scope_only": true,
+      "profile_selected": true
+    }
+  },
+  "expected": {
+    "finding_count": 1,
+    "rule_ids": [
+      "SCSVS-I1"
+    ],
+    "primary_status": "NEW",
+    "severity": "Medium",
+    "blocking_candidate_count": 1,
+    "delta_classification": "NEW"
+  }
+}

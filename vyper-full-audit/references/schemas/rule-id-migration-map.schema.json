@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyper-auditor-skills/schemas/rule-id-migration-map.schema.json",
+  "title": "RuleIdMigrationMap",
+  "type": "object",
+  "required": ["version", "generated_at", "minimum_alias_retention_schema_versions", "migrations"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"type": "string"},
+    "generated_at": {"type": "string"},
+    "minimum_alias_retention_schema_versions": {"type": "integer", "minimum": 1},
+    "migrations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "canonical_rule_id",
+          "deprecated_rule_id",
+          "introduced_in_schema_pack",
+          "remove_after_schema_pack",
+          "reason"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "canonical_rule_id": {"type": "string", "minLength": 3},
+          "deprecated_rule_id": {"type": "string", "minLength": 3},
+          "introduced_in_schema_pack": {"type": "string", "minLength": 1},
+          "remove_after_schema_pack": {"type": "string", "minLength": 1},
+          "reason": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}

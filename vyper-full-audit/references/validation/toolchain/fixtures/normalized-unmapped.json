@@ -1,0 +1,19 @@
+{
+  "fixture_id": "normalized-unmapped",
+  "schema_pack_version": "v3.1.0",
+  "scenario": "normalization",
+  "input": {
+    "raw_findings": [
+      {
+        "tool": "mythril",
+        "native_id": "mythril-unknown-pattern",
+        "severity": "Medium",
+        "location": {"contract": "contracts/Vault.vy", "function": "deposit", "start_line": 52, "end_line": 58}
+      }
+    ]
+  },
+  "expected": {
+    "mapped": false,
+    "unmapped_findings": 1
+  }
+}

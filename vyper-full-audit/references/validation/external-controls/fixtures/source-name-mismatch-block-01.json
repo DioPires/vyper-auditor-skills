@@ -1,0 +1,15 @@
+{
+  "fixture_id": "source-name-mismatch-block-01",
+  "schema_pack_version": "v3.1.0",
+  "scenario": "source-name-identity-contract",
+  "input": {
+    "strict": true,
+    "mode": "prod-gate",
+    "external_control_map_source_name": "Sigma Prime Oracle Guidance",
+    "source_lock_source_name": "Oracle and Pricing"
+  },
+  "expected": {
+    "core_status": "BLOCKED",
+    "blocked_reason": "CORE:SOURCE_LOCK_SOURCE_NAME_MISMATCH"
+  }
+}

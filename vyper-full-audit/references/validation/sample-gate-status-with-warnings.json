@@ -1,10 +1,7 @@
 {
-  "prod_gate": "BLOCKED",
-  "assurance_checks": "FAIL",
-  "blocked_reasons": [
-    "CRITICAL_HIGH_INCOMPLETE",
-    "ASSURANCE_FEATURE_CONDITIONAL_MISSING:EVM_ABI_RAW_RETURN"
-  ],
+  "prod_gate": "PASS",
+  "assurance_checks": "PASS",
+  "blocked_reasons": [],
   "warnings": [
     {
       "code": "ADVISORY_CATALOG_STALE",
@@ -18,15 +15,67 @@
     }
   ],
   "critical_high_validation_summary": {
-    "total": 3,
+    "total": 2,
     "confirmed": 2,
     "rejected": 0,
-    "unverified": 1
+    "unverified": 0
+  },
+  "toolchain_status": {
+    "mode": "enabled",
+    "status": "PASS",
+    "fail_open": true,
+    "requested_tools": ["slither"],
+    "executed_tools": ["slither"],
+    "missing_tools": [],
+    "failed_tools": [],
+    "timed_out_tools": [],
+    "blocked_reasons": [],
+    "critical_high_validation": {
+      "total": 1,
+      "confirmed": 1,
+      "rejected": 0,
+      "unverified": 0
+    }
+  },
+  "standards_gate_status": {
+    "standards_enforcement": "shadow",
+    "profile": "full-evm",
+    "status": "WARN",
+    "required_packs": [
+      "evm-token-integration-checklist.md",
+      "evm-oracle-pricing-checklist.md",
+      "evm-runtime-checklist.md",
+      "evm-randomness-checklist.md",
+      "evm-cross-chain-checklist.md",
+      "evm-amm-checklist.md",
+      "evm-lending-checklist.md",
+      "evm-nft-checklist.md",
+      "evm-staking-checklist.md",
+      "defi-lending-checklist.md",
+      "erc4626-vault-checklist.md",
+      "p2p-lending-checklist.md"
+    ],
+    "available_packs": [
+      "evm-token-integration-checklist.md",
+      "evm-oracle-pricing-checklist.md",
+      "evm-runtime-checklist.md",
+      "evm-randomness-checklist.md",
+      "evm-cross-chain-checklist.md",
+      "evm-amm-checklist.md",
+      "evm-lending-checklist.md",
+      "evm-nft-checklist.md",
+      "evm-staking-checklist.md",
+      "defi-lending-checklist.md",
+      "erc4626-vault-checklist.md",
+      "p2p-lending-checklist.md"
+    ],
+    "missing_packs": [],
+    "blocked_reasons": []
   },
   "artifact_paths": {
-    "audit_context": ".claude/audit-sessions/20260301-120000/audit-context.json",
-    "findings": ".claude/audit-sessions/20260301-120000/findings.json",
-    "compliance": ".claude/audit-sessions/20260301-120000/compliance.json",
-    "audit_report": ".claude/audit-sessions/20260301-120000/audit-report.json"
+    "audit_context": ".claude/audit-sessions/20260302-120000/audit-context.json",
+    "findings": ".claude/audit-sessions/20260302-120000/findings.json",
+    "compliance": ".claude/audit-sessions/20260302-120000/compliance.json",
+    "audit_report": ".claude/audit-sessions/20260302-120000/audit-report.json"
   }
 }

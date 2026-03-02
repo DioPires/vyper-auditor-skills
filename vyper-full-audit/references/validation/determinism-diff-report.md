@@ -2,31 +2,30 @@
 
 ## Scope
 
-Policy-level determinism checks for repository contracts that define deterministic behavior.
+Policy-level determinism checks for v3 contracts:
+- canonical finding identity
+- alias migration matching order
+- toolchain summary contracts
+- standards summary contracts
+- source-lock pin metadata ordering
 
 ## Verified
 
-- Deterministic `finding_id` contract retained (`FND-<hash>` model).
+- Deterministic `finding_id` and `tool_finding_id` models retained.
 - Dedup key and cross-contract non-collapse policy retained.
-- No new non-deterministic identifiers introduced in schemas.
-- Warning propagation fields are structural and deterministic (`warnings[]` arrays).
+- Delta matching precedence is deterministic:
+  1. canonical rule match
+  2. alias migration map
+  3. location similarity fallback
+- Warning/status contracts are structural and deterministic (`PASS|WARN|SKIPPED|BLOCKED`).
+- Source-lock artifact hashes remain stable for pinned snapshots.
+- `execution_model=single-threaded|fanout` does not alter final gate result when canonical artifact inputs are equivalent.
 
 ## Result
 
 - Status: PASS
-- Date: 2026-03-01
+- Date: 2026-03-02
 
 ## Notes
 
-Executable output determinism still depends on downstream runtime implementation of these skills.
-
-## Contract Evidence
-
-- `vyper-vuln-scan/SKILL.md`: deterministic `finding_id` definition unchanged.
-- `vyper-vuln-scan/SKILL.md`: dedup key unchanged.
-- `vyper-full-audit/SKILL.md`: canonical artifact validation and gate rules deterministic.
-
-```bash
-rg -n 'finding_id|Dedup key|identical repo snapshot' \\
-  vyper-vuln-scan/SKILL.md vyper-audit-context/SKILL.md
-```
+Executable output determinism still depends on downstream runtime implementation.

@@ -1,0 +1,33 @@
+{
+  "fixture_id": "orc-01-positive-02",
+  "schema_pack_version": "v3.1.0",
+  "family": "ORC",
+  "rule_id": "ORC-01",
+  "profile": "evm-oracle",
+  "tier": "TIER2",
+  "blocking_eligible": false,
+  "case_type": "positive",
+  "input": {
+    "contracts": [
+      {
+        "path": "references/validation/external-controls/contracts/fixtures/orc-01_positive_02.vy",
+        "language": "vyper",
+        "snippet": "# synthetic fixture for ORC-01 (positive)"
+      }
+    ],
+    "assumptions": {
+      "vyper_scope_only": true,
+      "profile_selected": true
+    }
+  },
+  "expected": {
+    "finding_count": 1,
+    "rule_ids": [
+      "ORC-01"
+    ],
+    "primary_status": "NEW",
+    "severity": "High",
+    "blocking_candidate_count": 0,
+    "delta_classification": "NEW"
+  }
+}

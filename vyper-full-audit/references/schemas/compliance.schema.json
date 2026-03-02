@@ -3,15 +3,24 @@
   "$id": "https://vyper-auditor-skills/schemas/compliance.schema.json",
   "title": "ComplianceArtifact",
   "type": "object",
-  "required": ["meta", "requirements", "mappings", "verification", "invariants", "coverage"],
+  "required": [
+    "meta",
+    "requirements",
+    "mappings",
+    "verification",
+    "invariants",
+    "coverage",
+    "standards_coverage_summary"
+  ],
   "additionalProperties": false,
   "properties": {
     "meta": {
       "type": "object",
-      "required": ["generated_at", "spec_files", "contracts_verified"],
+      "required": ["generated_at", "schema_pack_version", "spec_files", "contracts_verified"],
       "additionalProperties": false,
       "properties": {
         "generated_at": {"type": "string"},
+        "schema_pack_version": {"type": "string", "minLength": 1},
         "spec_files": {"type": "integer", "minimum": 0},
         "contracts_verified": {"type": "integer", "minimum": 0}
       }
@@ -74,6 +83,43 @@
         "partial": {"type": "integer", "minimum": 0},
         "unverified": {"type": "integer", "minimum": 0},
         "unmapped": {"type": "integer", "minimum": 0}
+      }
+    },
+    "standards_coverage_summary": {
+      "type": "object",
+      "required": [
+        "standards_enforcement",
+        "profile",
+        "applies",
+        "status",
+        "required_packs",
+        "available_packs",
+        "missing_packs",
+        "control_counts"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "standards_enforcement": {"type": "string", "enum": ["shadow", "enforced"]},
+        "profile": {"type": "string"},
+        "applies": {"type": "boolean"},
+        "status": {"type": "string", "enum": ["PASS", "WARN", "SKIPPED", "BLOCKED"]},
+        "required_packs": {"type": "array", "items": {"type": "string"}},
+        "available_packs": {"type": "array", "items": {"type": "string"}},
+        "missing_packs": {"type": "array", "items": {"type": "string"}},
+        "blocked_reasons": {"type": "array", "items": {"type": "string"}},
+        "control_counts": {
+          "type": "object",
+          "required": ["total", "pass", "fail", "partial", "unverified", "unmapped"],
+          "additionalProperties": false,
+          "properties": {
+            "total": {"type": "integer", "minimum": 0},
+            "pass": {"type": "integer", "minimum": 0},
+            "fail": {"type": "integer", "minimum": 0},
+            "partial": {"type": "integer", "minimum": 0},
+            "unverified": {"type": "integer", "minimum": 0},
+            "unmapped": {"type": "integer", "minimum": 0}
+          }
+        }
       }
     }
   }

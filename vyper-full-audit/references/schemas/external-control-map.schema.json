@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vyper-auditor-skills/schemas/external-control-map.schema.json",
+  "title": "ExternalControlMap",
+  "type": "object",
+  "required": ["version", "generated_at", "entries"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"type": "string"},
+    "generated_at": {"type": "string"},
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "canonical_rule_id",
+          "source_name",
+          "source_control_id",
+          "source_url",
+          "trust_tier",
+          "blocking_eligible",
+          "aliases"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "canonical_rule_id": {"type": "string", "minLength": 3},
+          "source_name": {"type": "string", "minLength": 1},
+          "source_control_id": {"type": "string", "minLength": 1},
+          "source_url": {"type": "string", "pattern": "^https://[^\\s]+$"},
+          "trust_tier": {"type": "string", "enum": ["TIER1", "TIER2", "TIER3"]},
+          "blocking_eligible": {"type": "boolean"},
+          "aliases": {"type": "array", "items": {"type": "string"}},
+          "split_rationale": {"type": "string"},
+          "notes": {"type": "string"}
+        }
+      }
+    }
+  }
+}

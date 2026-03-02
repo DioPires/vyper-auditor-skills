@@ -1,0 +1,31 @@
+{
+  "fixture_id": "crt-01-negative-02",
+  "schema_pack_version": "v3.1.0",
+  "family": "CRT",
+  "rule_id": "CRT-01",
+  "profile": "evm-runtime",
+  "tier": "TIER2",
+  "blocking_eligible": false,
+  "case_type": "negative",
+  "input": {
+    "contracts": [
+      {
+        "path": "references/validation/external-controls/contracts/fixtures/crt-01_negative_02.vy",
+        "language": "vyper",
+        "snippet": "# synthetic fixture for CRT-01 (negative)"
+      }
+    ],
+    "assumptions": {
+      "vyper_scope_only": true,
+      "profile_selected": true
+    }
+  },
+  "expected": {
+    "finding_count": 0,
+    "rule_ids": [],
+    "primary_status": null,
+    "severity": null,
+    "blocking_candidate_count": 0,
+    "delta_classification": "UNMATCHED"
+  }
+}

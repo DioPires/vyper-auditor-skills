@@ -1,0 +1,18 @@
+{
+  "fixture_id": "tool-available",
+  "schema_pack_version": "v3.1.0",
+  "scenario": "tool-availability",
+  "input": {
+    "toolchain_mode": "enabled",
+    "tool_fail_open": false,
+    "requested_tools": ["slither"],
+    "tool_availability": [
+      {"tool": "slither", "status": "AVAILABLE", "version": "0.10.4"}
+    ]
+  },
+  "expected": {
+    "toolchain_status": "PASS",
+    "executed_tools": ["slither"],
+    "missing_tools": []
+  }
+}

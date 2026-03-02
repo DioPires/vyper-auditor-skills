@@ -1,0 +1,33 @@
+{
+  "fixture_id": "tok-03-positive-02",
+  "schema_pack_version": "v3.1.0",
+  "family": "TOK",
+  "rule_id": "TOK-03",
+  "profile": "evm-token-integration",
+  "tier": "TIER1",
+  "blocking_eligible": true,
+  "case_type": "positive",
+  "input": {
+    "contracts": [
+      {
+        "path": "references/validation/external-controls/contracts/fixtures/tok-03_positive_02.vy",
+        "language": "vyper",
+        "snippet": "# synthetic fixture for TOK-03 (positive)"
+      }
+    ],
+    "assumptions": {
+      "vyper_scope_only": true,
+      "profile_selected": true
+    }
+  },
+  "expected": {
+    "finding_count": 1,
+    "rule_ids": [
+      "TOK-03"
+    ],
+    "primary_status": "NEW",
+    "severity": "Medium",
+    "blocking_candidate_count": 1,
+    "delta_classification": "NEW"
+  }
+}

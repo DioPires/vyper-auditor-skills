@@ -1,4 +1,4 @@
-# Report Template v2
+# Report Template v3
 
 Template used to render `audit-report.md` from canonical `audit-report.json`.
 
@@ -10,7 +10,7 @@ JSON is source of truth. Markdown is presentation.
 
 ## ID Model
 
-- `rule_id`: taxonomy ID (`VYP-*`, `CL-*`, `E46-*`, `SPEC-*`, etc.)
+- `rule_id`: canonical internal taxonomy ID (`VYP-*`, `TOK-*`, `ORC-*`, `E46-*`, etc.)
 - `finding_id`: deterministic instance ID (`FND-<hash>`)
 
 ---
@@ -21,6 +21,7 @@ JSON is source of truth. Markdown is presentation.
 **Scope**: {contract_count} Vyper contracts
 **Compiler Versions**: {versions}
 **Audit Mode**: {mode}
+**Profile**: {profile}
 **PROD_GATE**: {prod_gate}
 **ASSURANCE_CHECKS**: {assurance_checks}
 
@@ -47,7 +48,34 @@ JSON is source of truth. Markdown is presentation.
 | Vulnerability Scan | {scan_status} | {notes} |
 | Spec Compliance | {spec_status} | {notes} |
 | Assurance Checks | {assurance_checks} | {notes} |
+| Toolchain | {toolchain_status} | {notes} |
+| Standards Coverage | {standards_gate_status} | {notes} |
 | Critical/High Validation | {critical_high_validation} | {notes} |
+
+## Tool Coverage Summary
+
+| Field | Value |
+|---|---|
+| Mode | {tool_mode} |
+| Status | {tool_status} |
+| Requested Tools | {requested_tools} |
+| Executed Tools | {executed_tools} |
+| Missing Tools | {missing_tools} |
+| Failed Tools | {failed_tools} |
+| Timed Out Tools | {timed_out_tools} |
+| Mapped Findings | {mapped_tool_findings} |
+| Unmapped Findings | {unmapped_tool_findings} |
+
+## Standards Coverage Summary
+
+| Field | Value |
+|---|---|
+| Enforcement | {standards_enforcement} |
+| Profile | {profile} |
+| Status | {standards_status} |
+| Required Packs | {required_packs} |
+| Missing Packs | {missing_packs} |
+| Controls PASS/FAIL/PARTIAL/UNVERIFIED/UNMAPPED | {control_counts} |
 
 ## Findings
 

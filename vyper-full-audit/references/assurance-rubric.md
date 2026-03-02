@@ -1,6 +1,6 @@
 # Assurance Rubric (Prod-Gate)
 
-This rubric defines when `ASSURANCE_CHECKS` is `PASS|FAIL|BLOCKED`.
+This rubric defines when `ASSURANCE_CHECKS` is `PASS|BLOCKED`.
 
 ## Required Dimensions
 
@@ -16,6 +16,7 @@ This rubric defines when `ASSURANCE_CHECKS` is `PASS|FAIL|BLOCKED`.
 3. Execution Evidence
 - Evidence of recent execution available.
 - No unresolved failing seeds/counterexamples.
+- Evidence engine and command used must be recorded.
 
 4. Non-triviality
 - Suites are meaningful, not placeholder tests.
@@ -33,8 +34,20 @@ Required mapping:
 ## Evaluation
 
 - `PASS`: all required dimensions satisfy rubric.
-- `FAIL`: suite exists but quality/execution/feature-targeted criteria fail.
-- `BLOCKED`: required evidence absent or cannot be assessed.
+- `BLOCKED`: required evidence is absent, incomplete, or fails quality/execution/feature-targeted criteria.
 
 Prod-gate rule:
 - Only `PASS` allows release gate to pass.
+
+## Accepted Evidence Engines
+
+Primary:
+- `boa-pytest` (Titanoboa + pytest)
+- `foundry` (`forge test`/invariants)
+
+Optional compatibility path:
+- `echidna-harness` (only when harness-backed and reproducible)
+
+Rules:
+- At least one primary engine is recommended for pure-source Vyper projects.
+- If only compatibility-path evidence exists, quality bar still applies and unresolved counterexamples block.
