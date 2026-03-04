@@ -5,7 +5,7 @@ gating.
 
 ## Structure
 
-- 5 skills in separate directories, each with `SKILL.md`
+- 9 skills in separate directories, each with `SKILL.md`
 - Shared references in `vyper-full-audit/references/` (others symlink)
 - Canonical schemas in `vyper-full-audit/references/schemas/`
 - `install.sh` creates symlinks in `~/.claude/skills/`
@@ -23,4 +23,3 @@ gating.
 - Mock contracts: `Mock*.vy` or test paths (`/mock`, `/test`)
 - Bridge contracts: non-mock files in `auxiliary/`
 - Finding identity: `rule_id` + deterministic `finding_id`
-
